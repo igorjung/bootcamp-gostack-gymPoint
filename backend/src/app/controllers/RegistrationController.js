@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { isBefore, format, addMonths } from 'date-fns';
+import { isBefore, format, addMonths, parseISO } from 'date-fns';
 
 import Registration from '../models/Registration';
 import Plan from '../models/Plan';
@@ -9,10 +9,25 @@ import Mail from '../../lib/Mail';
 
 class RegistrationController {
   async index(req, res) {
-    const registrations = await Registration.findAll();
+    const registrations = await Registration.findAll({
+      attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
+      order: ['id'],
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['name'],
+        },
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['title'],
+        },
+      ],
+    });
 
     if (!registrations) {
-      return res.status(400).json({ error: 'There is not registrations yet' });
+      return res.status(400).json({ error: 'There are not registrations yet' });
     }
 
     return res.json(registrations);
@@ -58,7 +73,7 @@ class RegistrationController {
 
     const { start_date } = req.body;
 
-    const [day, month, year] = start_date.split('/');
+    const [month, day, year] = start_date.split('/');
 
     if (isBefore(new Date(year, month - 1, day), new Date())) {
       return res.status(400).json({ error: 'Past dates are not permitted' });
@@ -77,8 +92,8 @@ class RegistrationController {
       price,
       student_id,
       plan_id,
-      start_date: startDateFormated,
-      end_date: endDateFormated,
+      start_date,
+      end_date,
     });
 
     await Mail.sendMail({
@@ -127,7 +142,7 @@ class RegistrationController {
       }
     }
 
-    const [day, month, year] = start_date.split('/');
+    const [month, day, year] = start_date.split('/');
 
     if (isBefore(new Date(year, month - 1, day), new Date())) {
       return res.status(400).json({ error: 'Past dates are not permitted' });
@@ -137,41 +152,26 @@ class RegistrationController {
 
     const end_date = addMonths(new Date(year, month - 1, day), duration);
 
-    const endDateFormated = format(end_date, 'dd/MM/yyyy');
-
-    const startDateFormated = format(
-      new Date(year, month - 1, day),
-      'dd/MM/yyyy'
-    );
-
     const registration = await Registration.findByPk(studentRegistration.id);
 
     await registration.update({
       price,
       student_id,
       plan_id,
-      start_date: startDateFormated,
-      end_date: endDateFormated,
+      start_date,
+      end_date,
     });
 
     return res.json(registration);
   }
 
   async delete(req, res) {
-    const student_id = req.params.id;
+    const { id } = req.params;
 
-    const student = await Student.findByPk(student_id);
-
-    if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
-    }
-
-    const registration = await Registration.findOne({ where: { student_id } });
+    const registration = await Registration.findOne({ where: { id } });
 
     if (!registration) {
-      return res
-        .status(400)
-        .json({ error: 'Student does not have Registration' });
+      return res.status(400).json({ error: 'Registration not found' });
     }
 
     await registration.destroy();

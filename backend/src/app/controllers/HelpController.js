@@ -5,15 +5,70 @@ import Student from '../models/Student';
 
 class HelpController {
   async index(req, res) {
-    const student_id = req.params.id;
+    const { student } = req.params;
 
-    const student = await Student.findByPk(student_id);
+    if (student) {
+      const help = await Help.findAll({
+        where: { student_id: student, answer: null },
+        order: ['id'],
+        include: [
+          {
+            model: Student,
+            as: 'student',
+            attributes: ['name', 'email'],
+          },
+        ],
+      });
 
-    if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
+      if (!help) {
+        return res
+          .status(400)
+          .json({ error: 'There are not help orders for this student' });
+      }
+
+      return res.json(help);
     }
 
-    const help = await Help.findAll({ where: { student_id } });
+    const help = await Help.findAll({
+      where: { answer: null },
+      order: ['id'],
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['name', 'email'],
+        },
+      ],
+    });
+
+    if (!help) {
+      return res.status(400).json({ error: 'There are not help orders' });
+    }
+
+    return res.json(help);
+  }
+
+  async show(req, res) {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const help = await Help.findOne({
+      where: { id },
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['name', 'email'],
+        },
+      ],
+    });
+
+    if (!help) {
+      return res.status(400).json({ error: 'Question not found' });
+    }
 
     return res.json(help);
   }

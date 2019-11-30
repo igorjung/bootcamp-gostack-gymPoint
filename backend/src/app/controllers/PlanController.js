@@ -4,10 +4,38 @@ import Plan from '../models/Plan';
 
 class PlanController {
   async index(req, res) {
+    const { id } = req.query;
+
+    if (id) {
+      const plan = await Plan.findOne({
+        where: { id },
+        attributes: ['id', 'title', 'duration', 'price'],
+        order: ['id'],
+      });
+
+      return res.json(plan);
+    }
+
     const plan = await Plan.findAll({
       attributes: ['id', 'title', 'duration', 'price'],
       order: ['id'],
     });
+
+    return res.json(plan);
+  }
+
+  async show(req, res) {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const plan = await Plan.findByPk(id);
+
+    if (!plan) {
+      return res.status(400).json({ error: 'Plan not found' });
+    }
 
     return res.json(plan);
   }

@@ -13,8 +13,11 @@ class Help_orders extends Model {
         sequelize,
       }
     );
-
     return this;
+  }
+
+  static associate(models) {
+    this.belongsTo(models.Student, { foreignKey: 'student_id', as: 'student' });
   }
 }
 

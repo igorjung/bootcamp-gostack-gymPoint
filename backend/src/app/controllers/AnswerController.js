@@ -31,9 +31,9 @@ class HelpController {
 
     const { name, email } = await Student.findByPk(question.student_id);
 
-    console.log(name, email);
-
     const { answer } = req.body;
+
+    await question.destroy();
 
     const help = await Help.create({
       answer,
