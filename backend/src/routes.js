@@ -48,6 +48,8 @@ routes.delete(
 
 routes.get('/registrations', authMiddleware, RegistrationController.index);
 
+routes.get('/registrations/:id', authMiddleware, RegistrationController.show);
+
 routes.get('/students', StudentController.index);
 
 routes.get('/students/:id', authMiddleware, StudentController.show);

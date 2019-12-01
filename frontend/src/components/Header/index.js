@@ -1,12 +1,11 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 
 import { signOut } from '~/store/modules/auth/actions';
 
 import logo from '~/assets/logo.png';
 
-import { Container, Content } from './styles';
+import { Container, Content, MenuLink } from './styles';
 
 const links = [
   {
@@ -27,6 +26,10 @@ const links = [
   },
 ];
 
+const ActiveStyle = {
+  color: '#333',
+};
+
 export default function Header() {
   const profile = useSelector(state => state.auth.profile);
 
@@ -43,15 +46,13 @@ export default function Header() {
           <img src={logo} alt="GymPoint" />
           <>
             {links.map(link => (
-              <Link
-                className={
-                  window.location.href.includes(link.href) ? 'current' : ''
-                }
+              <MenuLink
+                activeStyle={ActiveStyle}
                 key={link.name}
                 to={link.href}
               >
                 {link.name}
-              </Link>
+              </MenuLink>
             ))}
           </>
         </nav>

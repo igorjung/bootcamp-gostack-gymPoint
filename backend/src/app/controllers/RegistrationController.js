@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { isBefore, format, addMonths, parseISO } from 'date-fns';
+import { isBefore, format, addMonths } from 'date-fns';
 
 import Registration from '../models/Registration';
 import Plan from '../models/Plan';
@@ -31,6 +31,37 @@ class RegistrationController {
     }
 
     return res.json(registrations);
+  }
+
+  async show(req, res) {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const registration = await Registration.findOne({
+      where: { id },
+      attributes: ['id', 'start_date', 'end_date', 'active'],
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['name', 'id'],
+        },
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['title', 'id', 'price', 'duration'],
+        },
+      ],
+    });
+
+    if (!registration) {
+      return res.status(400).json({ error: 'Registration not found' });
+    }
+
+    return res.json(registration);
   }
 
   async store(req, res) {

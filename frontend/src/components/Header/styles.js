@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { NavLink } from 'react-router-dom';
 
 export const Container = styled.div`
   width: 100%;
@@ -27,17 +28,6 @@ export const Content = styled.div`
       padding-right: 30px;
       border-right: 1px solid #eee;
     }
-
-    a {
-      font-size: 12px;
-      font-weight: bold;
-      color: #999;
-      margin-left: 20px;
-
-      &.current {
-        color: #333;
-      }
-    }
   }
 
   div {
@@ -60,4 +50,11 @@ export const Content = styled.div`
       text-align: right;
     }
   }
+`;
+
+export const MenuLink = styled(NavLink)`
+  font-size: 12px;
+  font-weight: bold;
+  color: #999;
+  margin-left: 20px;
 `;

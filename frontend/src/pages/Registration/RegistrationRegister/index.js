@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { MdKeyboardArrowLeft, MdCheck } from 'react-icons/md';
 
-import * as Yup from 'yup';
 import { FormContent, InputContent, FlexLine, FlexColumn } from '../styles';
 
 import history from '~/services/history';
@@ -16,13 +15,7 @@ import { StudentsSelect, DefaultSelect } from '~/styles/asyncSelect';
 
 import formatCurrency from '~/util/format';
 
-const Schema = Yup.object().shape({
-  student: Yup.string().required('O nome é obrigatório'),
-  plan: Yup.string().required('O plano é obrigatório'),
-  start_data: Yup.string().required('A data inicial é obrigatória'),
-});
-
-export default function PlanRegister() {
+export default function RegistrationRegister() {
   const [loading, setLoading] = useState(false);
 
   const [plans, setPlans] = useState([]);
@@ -41,13 +34,9 @@ export default function PlanRegister() {
     async function loadPlans() {
       const { data } = await api.get('plans');
 
-      const plansOptions = data.map(plan => ({
-        name: 'plan',
-        label: plan.title,
-        value: plan,
-      }));
+      const options = data.map(plan => ({ ...plan, key: 'plan' }));
 
-      setPlans(plansOptions);
+      setPlans(options);
     }
 
     function loadDates() {
@@ -56,8 +45,8 @@ export default function PlanRegister() {
       for (let x = 1; x < 30; x++) {
         const day = addDays(new Date(), x);
 
-        days[x] = {
-          name: 'start_date',
+        days[x - 1] = {
+          key: 'start_date',
           value: day,
           label: format(day, 'dd/MM/yy'),
         };
@@ -71,46 +60,39 @@ export default function PlanRegister() {
     loadPlans();
   }, []);
 
-  async function studentOptions(inputValue) {
+  async function loadStudents(inputValue) {
     if (!inputValue) {
-      const response = await api.get('students');
+      const { data } = await api.get('students');
 
-      const studentsOptions = response.data.map(student => ({
-        id: student.id,
-        title: student.name,
-      }));
+      const options = data.map(student => ({ ...student, key: 'student' }));
 
-      console.log(studentsOptions);
+      setStudents(options);
 
-      setStudents(studentsOptions);
-
-      return studentsOptions;
+      return options;
     }
 
     const studentOption = students.filter(student =>
-      student.title.includes(inputValue)
+      student.name.includes(inputValue)
     );
 
     return studentOption;
   }
 
   function handleChange(data) {
-    switch (data.name) {
+    switch (data.key) {
       case 'plan': {
-        const { value } = data;
-
-        const newFullPrice = formatCurrency(value.price * value.duration);
+        const newFullPrice = formatCurrency(data.price * data.duration);
 
         setFullPrice(newFullPrice);
 
-        setRegistration({ ...registration, plan: data.value });
+        setRegistration({ ...registration, plan: data });
 
         if (!registration.start_date) {
           return;
         }
 
         const end_date = format(
-          addMonths(registration.start_date, data.value.duration),
+          addMonths(registration.start_date, data.duration),
           'dd/MM/yy'
         );
 
@@ -118,8 +100,6 @@ export default function PlanRegister() {
         break;
       }
       case 'start_date': {
-        const { value } = data;
-
         setRegistration({ ...registration, start_date: data.value });
 
         if (!registration.plan) {
@@ -127,7 +107,7 @@ export default function PlanRegister() {
         }
 
         const end_date = format(
-          addMonths(value, registration.plan.duration),
+          addMonths(data.value, registration.plan.duration),
           'dd/MM/yy'
         );
 
@@ -137,17 +117,12 @@ export default function PlanRegister() {
       case 'student': {
         setRegistration({
           ...registration,
-          student: data.value,
+          student: data,
         });
         break;
       }
       default:
     }
-  }
-
-  function handleSubmit(data) {
-    console.log('AAAA');
-    console.log(data);
   }
 
   async function handleClick() {
@@ -187,7 +162,7 @@ export default function PlanRegister() {
             </LinkBack>
           </Link>
 
-          <ButtonSave form="RegistrationRegister" type="submit">
+          <ButtonSave type="button" onClick={handleClick}>
             {loading ? (
               <strong>Carregando...</strong>
             ) : (
@@ -200,21 +175,20 @@ export default function PlanRegister() {
         </div>
       </Container>
 
-      <FormContent id="RegistrationRegister" onSubmit={handleSubmit}>
+      <FormContent id="RegistrationRegister">
         <strong>ALUNO</strong>
         <AsyncSelect
           name="student"
           defaultOptions
-          loadOptions={studentOptions}
+          loadOptions={loadStudents}
           getOptionValue={option => option.id}
-          getOptionLabel={option => option.title}
+          getOptionLabel={option => option.name}
           placeholder="Buscar aluno"
           styles={StudentsSelect}
           components={{
             IndicatorSeparator: () => null,
           }}
           onChange={handleChange}
-          form="RegistrationRegister"
         />
         <FlexLine>
           <FlexColumn>
@@ -222,6 +196,8 @@ export default function PlanRegister() {
             <AsyncSelect
               onChange={handleChange}
               defaultOptions={plans}
+              getOptionValue={option => option.id}
+              getOptionLabel={option => option.title}
               components={{
                 IndicatorSeparator: () => null,
               }}
@@ -233,13 +209,13 @@ export default function PlanRegister() {
           <FlexColumn>
             <strong>DATA DE INÍCIO</strong>
             <AsyncSelect
-              components={{
-                IndicatorSeparator: () => null,
-              }}
               defaultOptions={startDate}
               onChange={handleChange}
               placeholder="Ecolha a data"
               styles={DefaultSelect}
+              components={{
+                IndicatorSeparator: () => null,
+              }}
               name="start_date"
             />
           </FlexColumn>
