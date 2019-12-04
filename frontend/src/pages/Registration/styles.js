@@ -1,7 +1,6 @@
 import styled from 'styled-components';
-import { Form } from '@rocketseat/unform';
 
-export const FormContent = styled(Form)`
+export const Content = styled.div`
   border-spacing: 0;
   margin: 30px 0;
   width: auto;
@@ -25,6 +24,23 @@ export const InputContent = styled.input`
   height: 40px;
   padding: 15px;
   width: 100%;
+`;
+
+export const DatePicker = styled.input`
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: 40px;
+  padding: 15px;
+  width: 100%;
+
+  &::-webkit-inner-spin-button {
+    display: none;
+  }
+
+  &::-webkit-clear-button {
+    display: none;
+  }
 `;
 
 export const FlexLine = styled.div`

@@ -23,7 +23,6 @@ const Schema = Yup.object().shape({
 
 export default function PlanEdit({ match }) {
   const [loading, setLoading] = useState(false);
-
   const [plan, setPlan] = useState([]);
 
   useEffect(() => {

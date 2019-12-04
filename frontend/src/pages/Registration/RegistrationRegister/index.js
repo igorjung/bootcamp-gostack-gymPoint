@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AsyncSelect from 'react-select/async';
-import { addDays, addMonths, format } from 'date-fns';
+import Select from 'react-select';
+
+import { addMonths, addDays, format, parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { MdKeyboardArrowLeft, MdCheck } from 'react-icons/md';
 
-import { FormContent, InputContent, FlexLine, FlexColumn } from '../styles';
+import {
+  Content,
+  InputContent,
+  DatePicker,
+  FlexLine,
+  FlexColumn,
+} from '../styles';
 
 import history from '~/services/history';
 import api from '~/services/api';
@@ -17,45 +25,20 @@ import formatCurrency from '~/util/format';
 
 export default function RegistrationRegister() {
   const [loading, setLoading] = useState(false);
-
   const [plans, setPlans] = useState([]);
-
   const [students, setStudents] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [selectPlan, setSelectPlan] = useState('');
+  const [selectStudent, setSelectStudent] = useState('');
 
-  const [fullPrice, setFullPrice] = useState('');
-
-  const [startDate, setStartDate] = useState([]);
-
-  const [endDate, setEndDate] = useState('');
-
-  const [registration, setRegistration] = useState('');
+  const minDate = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 
   useEffect(() => {
     async function loadPlans() {
       const { data } = await api.get('plans');
 
-      const options = data.map(plan => ({ ...plan, key: 'plan' }));
-
-      setPlans(options);
+      setPlans(data);
     }
-
-    function loadDates() {
-      const days = [];
-
-      for (let x = 1; x < 30; x++) {
-        const day = addDays(new Date(), x);
-
-        days[x - 1] = {
-          key: 'start_date',
-          value: day,
-          label: format(day, 'dd/MM/yy'),
-        };
-      }
-
-      setStartDate(days);
-    }
-
-    loadDates();
 
     loadPlans();
   }, []);
@@ -64,11 +47,9 @@ export default function RegistrationRegister() {
     if (!inputValue) {
       const { data } = await api.get('students');
 
-      const options = data.map(student => ({ ...student, key: 'student' }));
+      setStudents(data);
 
-      setStudents(options);
-
-      return options;
+      return data;
     }
 
     const studentOption = students.filter(student =>
@@ -78,69 +59,46 @@ export default function RegistrationRegister() {
     return studentOption;
   }
 
-  function handleChange(data) {
-    switch (data.key) {
-      case 'plan': {
-        const newFullPrice = formatCurrency(data.price * data.duration);
-
-        setFullPrice(newFullPrice);
-
-        setRegistration({ ...registration, plan: data });
-
-        if (!registration.start_date) {
-          return;
-        }
-
-        const end_date = format(
-          addMonths(registration.start_date, data.duration),
-          'dd/MM/yy'
-        );
-
-        setEndDate(end_date);
-        break;
-      }
-      case 'start_date': {
-        setRegistration({ ...registration, start_date: data.value });
-
-        if (!registration.plan) {
-          return;
-        }
-
-        const end_date = format(
-          addMonths(data.value, registration.plan.duration),
-          'dd/MM/yy'
-        );
-
-        setEndDate(end_date);
-        break;
-      }
-      case 'student': {
-        setRegistration({
-          ...registration,
-          student: data,
-        });
-        break;
-      }
-      default:
-    }
+  function handleDate(e) {
+    setStartDate(e.target.value);
   }
 
-  async function handleClick() {
+  const endDate = useMemo(() => {
+    const { duration } = selectPlan;
+    if (duration && startDate) {
+      return format(addMonths(parseISO(startDate), duration), 'dd/MM/yy');
+    }
+    return format(addDays(new Date(), 1), 'dd/MM/yy');
+  }, [startDate, selectPlan]);
+
+  const fullPrice = useMemo(() => {
+    const { price, duration } = selectPlan;
+    if (price && duration) {
+      return formatCurrency(price * duration);
+    }
+    return 'R$0,00';
+  }, [selectPlan]);
+
+  async function handleRegister() {
     try {
+      const { id: student_id } = selectStudent;
+
+      const { id: plan_id } = selectPlan;
+
       setLoading(true);
 
       const data = {
-        plan_id: registration.plan.id,
-        start_date: format(registration.start_date, 'MM/dd/yyyy'),
+        plan_id,
+        start_date: format(parseISO(startDate), 'MM/dd/yyyy'),
       };
 
-      await api.post(`students/${registration.student.id}/registrations`, data);
+      await api.post(`students/${student_id}/registrations`, data);
 
       setLoading(false);
 
       history.push('/registrations');
 
-      toast.success('A matrícula foi criado com sucesso.');
+      toast.success('A matrícula foi cadastrada com sucesso.');
     } catch {
       setLoading(false);
 
@@ -162,7 +120,7 @@ export default function RegistrationRegister() {
             </LinkBack>
           </Link>
 
-          <ButtonSave type="button" onClick={handleClick}>
+          <ButtonSave type="button" onClick={handleRegister}>
             {loading ? (
               <strong>Carregando...</strong>
             ) : (
@@ -175,7 +133,7 @@ export default function RegistrationRegister() {
         </div>
       </Container>
 
-      <FormContent id="RegistrationRegister">
+      <Content>
         <strong>ALUNO</strong>
         <AsyncSelect
           name="student"
@@ -183,52 +141,60 @@ export default function RegistrationRegister() {
           loadOptions={loadStudents}
           getOptionValue={option => option.id}
           getOptionLabel={option => option.name}
-          placeholder="Buscar aluno"
+          onChange={inputValue => setSelectStudent(inputValue)}
           styles={StudentsSelect}
           components={{
             IndicatorSeparator: () => null,
           }}
-          onChange={handleChange}
+          placeholder="Buscar aluno"
         />
         <FlexLine>
           <FlexColumn>
             <strong>PLANO</strong>
-            <AsyncSelect
-              onChange={handleChange}
-              defaultOptions={plans}
+            <Select
+              name="plan"
+              options={plans}
               getOptionValue={option => option.id}
               getOptionLabel={option => option.title}
+              onChange={inputValue => setSelectPlan(inputValue)}
               components={{
                 IndicatorSeparator: () => null,
               }}
-              placeholder="Selecione plano"
               styles={DefaultSelect}
-              name="plan"
+              placeholder="Escolher plano"
             />
           </FlexColumn>
           <FlexColumn>
             <strong>DATA DE INÍCIO</strong>
-            <AsyncSelect
-              defaultOptions={startDate}
-              onChange={handleChange}
-              placeholder="Ecolha a data"
-              styles={DefaultSelect}
-              components={{
-                IndicatorSeparator: () => null,
-              }}
+            <DatePicker
               name="start_date"
+              type="date"
+              min={minDate}
+              value={startDate}
+              onChange={handleDate}
+              placeholder="Escolha um data"
             />
           </FlexColumn>
           <FlexColumn>
             <strong>DATA DE TÉRMINO</strong>
-            <InputContent disabled value={endDate || ''} />
+            <InputContent
+              name="end_date"
+              type="text"
+              disabled
+              value={endDate || ''}
+            />
           </FlexColumn>
           <FlexColumn>
             <strong>VALOR FINAL</strong>
-            <InputContent disabled value={fullPrice || ''} />
+            <InputContent
+              name="fullPrice"
+              type="text"
+              disabled
+              value={fullPrice || ''}
+            />
           </FlexColumn>
         </FlexLine>
-      </FormContent>
+      </Content>
     </>
   );
 }

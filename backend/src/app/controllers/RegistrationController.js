@@ -130,7 +130,14 @@ class RegistrationController {
     await Mail.sendMail({
       to: `${student.name} <${student.email}>`,
       subject: 'Matricula cadastrada!',
-      text: ` Parabéns ${student.name}, sua matricula no plano ${plan.title} foi cadastrada com início em ${startDateFormated} e com termino em ${endDateFormated}`,
+      template: 'registration',
+      context: {
+        student: student.name,
+        plan: plan.title,
+        price: plan.price,
+        startDate: startDateFormated,
+        endDate: endDateFormated,
+      },
     });
 
     return res.json(registration);

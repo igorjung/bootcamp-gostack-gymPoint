@@ -19,13 +19,12 @@ const Schema = Yup.object().shape({
     .email('Insira um e-mail válido')
     .required('O e-mail é obrigatório'),
   age: Yup.string().required('A idade é obrigatória'),
-  weight: Yup.string().required('O peso é obrigatótio'),
-  height: Yup.string().required('A altura é obrigatótia'),
+  weight: Yup.string().required('O peso é obrigatório'),
+  height: Yup.string().required('A altura é obrigatória'),
 });
 
 export default function StudentEdit({ match }) {
   const [loading, setLoading] = useState(false);
-
   const [student, setStudent] = useState([]);
 
   useEffect(() => {

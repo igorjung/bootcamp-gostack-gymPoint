@@ -43,7 +43,7 @@ export const DefaultSelect = {
   }),
   container: provided => ({
     ...provided,
-    marginTop: 5,
+    marginTop: 10,
   }),
   valueContainer: provided => ({
     ...provided,

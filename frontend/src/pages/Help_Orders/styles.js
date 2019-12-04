@@ -73,6 +73,21 @@ export const AnswerContainer = styled(Form)`
     margin: 5px 0 10px;
     font-weight: bold;
   }
+
+  div {
+    position: absolute;
+    right: 30px;
+    top: 2px;
+
+    button {
+      border: 0;
+      background: none;
+
+      &:hover {
+        background: none;
+      }
+    }
+  }
 `;
 
 export const Table = styled.table`

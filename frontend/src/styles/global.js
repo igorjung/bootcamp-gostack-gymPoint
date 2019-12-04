@@ -30,10 +30,8 @@ body, input, button, textarea {
 
 span {
   display: block;
-  margin-top: 5px;
   color: #fb6f93;
-  align-self: center;
-  margin: 5px 0 10px;
+  align-self: left;
   font-weight: bold;
 }
 

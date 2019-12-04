@@ -21,9 +21,7 @@ const Schema = Yup.object().shape({
 
 export default function PlanRegister() {
   const [loading, setLoading] = useState(false);
-
   const [duration, setDuration] = useState('');
-
   const [price, setPrice] = useState('');
 
   async function handleSubmit(data) {
@@ -94,6 +92,7 @@ export default function PlanRegister() {
             <Input
               name="duration"
               type="number"
+              value={duration}
               onChange={handleChangeDuration}
             />
           </div>
@@ -103,6 +102,7 @@ export default function PlanRegister() {
               name="price"
               type="number"
               step="any"
+              value={price}
               onChange={handleChangePrice}
             />
           </div>

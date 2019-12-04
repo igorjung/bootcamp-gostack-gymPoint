@@ -20,15 +20,15 @@ export default function Plans() {
     });
 
     const data = response.data.map(plan => {
-      const priceFormated = format(plan.price);
+      const priceFormatted = format(plan.price);
 
-      const durationFormated =
+      const durationFormatted =
         plan.duration > 1 ? `${plan.duration} meses` : `${plan.duration} mês`;
 
       return {
         ...plan,
-        priceFormated,
-        durationFormated,
+        priceFormatted,
+        durationFormatted,
       };
     });
 
@@ -78,8 +78,8 @@ export default function Plans() {
           {plans.map(plan => (
             <tr key={plan.id}>
               <td>{plan.title}</td>
-              <td align="center">{plan.durationFormated}</td>
-              <td align="center">{plan.priceFormated}</td>
+              <td align="center">{plan.durationFormatted}</td>
+              <td align="center">{plan.priceFormatted}</td>
               <td align="right">
                 <Link to={`plans/${plan.id}`}>editar</Link>
                 <button type="button" onClick={() => handleDelete(plan.id)}>

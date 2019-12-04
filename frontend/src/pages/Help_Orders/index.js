@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-import { MdRefresh } from 'react-icons/md';
+import { MdRefresh, MdClose } from 'react-icons/md';
 
 import * as Yup from 'yup';
 import { Input } from '@rocketseat/unform';
@@ -16,11 +16,8 @@ const Schema = Yup.object().shape({
 
 export default function Help_Orders() {
   const [loading, setLoading] = useState(false);
-
-  const [visible, setVisible] = useState(false);
-
+  const [visible, setVisible] = useState(0);
   const [helpOrders, setHelpOrders] = useState([]);
-
   const [question, setQuestion] = useState([]);
 
   async function loadHelpOrders() {
@@ -30,14 +27,14 @@ export default function Help_Orders() {
 
   useEffect(() => {
     loadHelpOrders();
-  }, [loading, visible]);
+  }, [visible]);
 
   async function loadQuestion(id) {
     const response = await api.get(`help-orders/${id}`);
 
     setQuestion(response.data);
 
-    setVisible(true);
+    setVisible(1);
   }
 
   async function handleSubmit(data) {
@@ -48,7 +45,7 @@ export default function Help_Orders() {
 
       setLoading(false);
 
-      setVisible(false);
+      setVisible(0);
 
       toast.success('A resposta foi enviada.');
     } catch {
@@ -78,6 +75,14 @@ export default function Help_Orders() {
         onSubmit={handleSubmit}
         schema={Schema}
       >
+        <div>
+          <button
+            type="button"
+            onClick={() => setVisible(0) && setQuestion('')}
+          >
+            <MdClose color="#333" size={16} />
+          </button>
+        </div>
         <strong>PERGUNTA DO ALUNO</strong>
         <p>{question.question || ''}</p>
         <strong>SUA RESPOSTA</strong>
