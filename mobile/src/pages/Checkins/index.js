@@ -75,6 +75,7 @@ function Checkins() {
 
 Checkins.navigationOptions = {
   tabBarLabel: 'Check-ins',
+  // eslint-disable-next-line react/prop-types
   tabBarIcon: ({ tintColor }) => (
     <Icon name="edit-location" size={20} color={tintColor} />
   ),

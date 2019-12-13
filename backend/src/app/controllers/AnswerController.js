@@ -20,7 +20,7 @@ class HelpController {
     const question = await Help.findByPk(id);
 
     if (!question) {
-      return res.status(400).json({ error: 'Help order does not exists' });
+      return res.status(404).json({ error: 'Help order does not exists' });
     }
 
     const { name, email } = await Student.findByPk(question.student_id);

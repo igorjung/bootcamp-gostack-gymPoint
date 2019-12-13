@@ -16,20 +16,6 @@ export const Content = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    img {
-      height: 30px;
-      width: 80px;
-      margin-right: 10px;
-      padding-right: 30px;
-      border-right: 1px solid #eee;
-    }
-  }
-
   div {
     display: flex;
     flex-direction: column;
@@ -52,8 +38,34 @@ export const Content = styled.div`
   }
 `;
 
+export const NavContainer = styled.nav`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 10px;
+    padding-right: 20px;
+    border-right: 1px solid #eee;
+
+    strong {
+      font-size: 14px;
+      color: #e25965;
+      margin-left: 10px;
+    }
+
+    img {
+      height: 25px;
+      width: 45px;
+    }
+  }
+`;
+
 export const MenuLink = styled(NavLink)`
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   color: #999;
   margin-left: 20px;

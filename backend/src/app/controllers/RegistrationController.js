@@ -27,7 +27,7 @@ class RegistrationController {
     });
 
     if (!registrations) {
-      return res.status(400).json({ error: 'There are not registrations yet' });
+      return res.status(404).json({ error: 'There are not registrations yet' });
     }
 
     return res.json(registrations);
@@ -58,7 +58,7 @@ class RegistrationController {
     });
 
     if (!registration) {
-      return res.status(400).json({ error: 'Registration not found' });
+      return res.status(404).json({ error: 'Registration not found' });
     }
 
     return res.json(registration);
@@ -79,7 +79,7 @@ class RegistrationController {
     const student = await Student.findByPk(student_id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'Student does not exists' });
     }
 
     const studentHasRegistration = await Registration.findOne({
@@ -88,7 +88,7 @@ class RegistrationController {
 
     if (studentHasRegistration) {
       return res
-        .status(400)
+        .status(401)
         .json({ error: 'Only one registration for each Student' });
     }
 
@@ -97,7 +97,7 @@ class RegistrationController {
     const plan = await Plan.findByPk(plan_id);
 
     if (!plan) {
-      return res.status(400).json({ error: 'Plan does not exists' });
+      return res.status(404).json({ error: 'Plan does not exists' });
     }
 
     const { price, duration } = plan;
@@ -158,7 +158,7 @@ class RegistrationController {
     const student = await Student.findByPk(student_id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'Student does not exists' });
     }
 
     const studentRegistration = await Registration.findOne({
@@ -167,7 +167,7 @@ class RegistrationController {
 
     if (!studentRegistration) {
       return res
-        .status(400)
+        .status(404)
         .json({ error: 'Student does not have Registration' });
     }
 
@@ -176,7 +176,7 @@ class RegistrationController {
     if (plan_id !== studentRegistration.plan_id) {
       const plan = await Plan.findByPk(plan_id);
       if (!plan) {
-        return res.status(400).json({ error: 'Plan does not exists' });
+        return res.status(404).json({ error: 'Plan does not exists' });
       }
     }
 
@@ -209,7 +209,7 @@ class RegistrationController {
     const registration = await Registration.findOne({ where: { id } });
 
     if (!registration) {
-      return res.status(400).json({ error: 'Registration not found' });
+      return res.status(404).json({ error: 'Registration not found' });
     }
 
     await registration.destroy();

@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { signOut } from '~/store/modules/auth/actions';
 
-import logo from '~/assets/logo.png';
+import logo from '~/assets/logo02.png';
 
-import { Container, Content, MenuLink } from './styles';
+import { Container, Content, MenuLink, NavContainer } from './styles';
 
 const links = [
   {
@@ -42,8 +42,11 @@ export default function Header() {
   return (
     <Container>
       <Content>
-        <nav>
-          <img src={logo} alt="GymPoint" />
+        <NavContainer>
+          <div>
+            <img src={logo} alt="GymPoint" />
+            <strong>GYMPOINT</strong>
+          </div>
           <>
             {links.map(link => (
               <MenuLink
@@ -55,7 +58,7 @@ export default function Header() {
               </MenuLink>
             ))}
           </>
-        </nav>
+        </NavContainer>
 
         <div>
           <strong>{profile.name}</strong>

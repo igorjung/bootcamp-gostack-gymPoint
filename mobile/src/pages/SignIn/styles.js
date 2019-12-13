@@ -9,7 +9,11 @@ export const Container = styled.SafeAreaView`
   padding: 0 30px;
 `;
 
-export const Image = styled.Image``;
+export const Image = styled.Image.attrs({
+  resizeMode: 'contain',
+})`
+  height: 80px;
+`;
 
 export const SubmitInput = styled.TextInput`
   border: 1px solid #ddd;

@@ -1,4 +1,7 @@
 import React from 'react';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import PropTypes from 'prop-types';
 
 import Header from '~/components/Header';
 import {
@@ -8,6 +11,7 @@ import {
   AnswerStrong,
   AnswerText,
   Time,
+  IconContainer,
 } from './styles';
 
 export default function Answer({ navigation }) {
@@ -15,7 +19,11 @@ export default function Answer({ navigation }) {
 
   return (
     <>
-      <Header />
+      <Header history>
+        <IconContainer onPress={() => navigation.navigate('Help_Orders')}>
+          <Icon name="keyboard-arrow-left" color="#999" size={20} />
+        </IconContainer>
+      </Header>
       <Container>
         <AnswerContainer>
           <AnswerHeader>
@@ -30,3 +38,10 @@ export default function Answer({ navigation }) {
     </>
   );
 }
+
+Answer.propTypes = {
+  navigation: PropTypes.shape({
+    getParam: PropTypes.func,
+    navigate: PropTypes.func,
+  }).isRequired,
+};

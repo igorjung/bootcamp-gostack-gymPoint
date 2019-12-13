@@ -37,3 +37,9 @@ export const AnswerText = styled.Text`
   margin-top: 10px;
   margin-bottom: 10px;
 `;
+
+export const IconContainer = styled.TouchableOpacity`
+  position: absolute;
+  left: 20px;
+  top: 15px;
+`;

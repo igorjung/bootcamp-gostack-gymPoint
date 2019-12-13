@@ -37,6 +37,7 @@ export default (signedIn = false) =>
                     borderTopColor: '#ddd',
                   },
                 },
+                // eslint-disable-next-line react/prop-types
                 tabBarIcon: ({ tintColor }) => (
                   <Icon name="live-help" size={20} color={tintColor} />
                 ),

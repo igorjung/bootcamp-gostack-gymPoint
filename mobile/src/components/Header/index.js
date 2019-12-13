@@ -1,13 +1,38 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import PropTypes from 'prop-types';
+import { signOut } from '~/store/modules/auth/actions';
 
 import logo from '~/assets/logo02.png';
-import { Container, Image, Text } from './styles';
+import { Container, LogoContainer, Image, Text, LogoutButton } from './styles';
 
-export default function Header() {
+export default function Header({ children }) {
+  const dispatch = useDispatch();
+
+  function handleSignOut() {
+    dispatch(signOut());
+  }
+
   return (
     <Container>
-      <Image source={logo} />
-      <Text>GYMPOINT</Text>
+      {children}
+      <LogoContainer>
+        <Image source={logo} />
+        <Text>GYMPOINT</Text>
+      </LogoContainer>
+      <LogoutButton onPress={handleSignOut}>
+        <Icon name="close" size={18} color="#fb6f93" />
+      </LogoutButton>
     </Container>
   );
 }
+
+Header.propTypes = {
+  children: PropTypes.element,
+};
+
+Header.defaultProps = {
+  children: <></>,
+};

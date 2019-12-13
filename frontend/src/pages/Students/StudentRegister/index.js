@@ -10,6 +10,7 @@ import history from '~/services/history';
 import api from '~/services/api';
 
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
+import MaskInput from '~/components/MaskInput';
 
 const Schema = Yup.object().shape({
   name: Yup.string().required('O nome é obrigatório'),
@@ -88,11 +89,11 @@ export default function StudentRegister() {
           </div>
           <div>
             <strong>PESO(em kg)</strong>
-            <Input name="weight" type="number" step="any" />
+            <MaskInput name="weight" />
           </div>
           <div>
             <strong>ALTURA</strong>
-            <Input name="height" type="number" step="any" />
+            <MaskInput name="height" />
           </div>
         </div>
       </FormContent>

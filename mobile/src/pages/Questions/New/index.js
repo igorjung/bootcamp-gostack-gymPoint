@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import { useSelector } from 'react-redux';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import PropTypes from 'prop-types';
 
 import api from '~/services/api';
 import Header from '~/components/Header';
-import { Container, SubmitButton, SubmitInput } from './styles';
+import { Container, SubmitButton, SubmitInput, IconContainer } from './styles';
 
 export default function New({ navigation }) {
   const id = useSelector(state => state.auth.profile.id);
@@ -30,7 +33,11 @@ export default function New({ navigation }) {
 
   return (
     <>
-      <Header />
+      <Header history>
+        <IconContainer onPress={() => navigation.navigate('Help_Orders')}>
+          <Icon name="keyboard-arrow-left" color="#999" size={20} />
+        </IconContainer>
+      </Header>
       <Container>
         <SubmitInput
           autoFocus
@@ -45,3 +52,9 @@ export default function New({ navigation }) {
     </>
   );
 }
+
+New.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+  }).isRequired,
+};

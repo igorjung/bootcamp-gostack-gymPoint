@@ -21,7 +21,7 @@ class HelpController {
 
       if (!help) {
         return res
-          .status(400)
+          .status(404)
           .json({ error: 'There are not help orders for this student' });
       }
 
@@ -41,7 +41,7 @@ class HelpController {
     });
 
     if (!help) {
-      return res.status(400).json({ error: 'There are not help orders' });
+      return res.status(404).json({ error: 'There are not help orders' });
     }
 
     return res.json(help);
@@ -66,7 +66,7 @@ class HelpController {
     });
 
     if (!help) {
-      return res.status(400).json({ error: 'Question not found' });
+      return res.status(404).json({ error: 'Question not found' });
     }
 
     return res.json(help);
@@ -86,7 +86,7 @@ class HelpController {
     const student = await Student.findByPk(student_id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'Student does not exists' });
     }
 
     const { question } = req.body;

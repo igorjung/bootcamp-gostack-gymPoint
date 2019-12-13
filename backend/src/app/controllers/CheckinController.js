@@ -11,7 +11,7 @@ class CheckinController {
     const student = await Student.findByPk(student_id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'Student does not exists' });
     }
 
     const studentCheckins = await Checkin.findAll({
@@ -21,7 +21,7 @@ class CheckinController {
     });
 
     if (!studentCheckins) {
-      return res.status(400).json({ error: 'Student does not have checkins' });
+      return res.status(404).json({ error: 'Student does not have checkins' });
     }
 
     return res.json(studentCheckins);
@@ -33,7 +33,7 @@ class CheckinController {
     const student = await Student.findByPk(student_id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'Student does not exists' });
     }
 
     const studentCheckins = await Checkin.findAll({
@@ -47,7 +47,7 @@ class CheckinController {
 
     if (studentCheckins) {
       if (studentCheckins.length >= 5) {
-        return res.status(400).json({
+        return res.status(401).json({
           error: 'Student can make only 5 chekins in a period of 7 days',
         });
       }

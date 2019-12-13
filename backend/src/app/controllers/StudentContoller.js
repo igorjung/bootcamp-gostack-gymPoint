@@ -13,7 +13,7 @@ class StudentController {
       });
 
       if (!students) {
-        return res.status(400).json({ error: 'There are not students yet' });
+        return res.status(404).json({ error: 'There are not students yet' });
       }
 
       return res.json(students);
@@ -26,7 +26,7 @@ class StudentController {
     });
 
     if (!student) {
-      return res.status(400).json({ error: 'Student not found' });
+      return res.status(404).json({ error: 'Student not found' });
     }
 
     return res.json(student);
@@ -42,7 +42,7 @@ class StudentController {
     const student = await Student.findByPk(id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student not found' });
+      return res.status(404).json({ error: 'Student not found' });
     }
 
     return res.json(student);
@@ -70,7 +70,7 @@ class StudentController {
     });
 
     if (student) {
-      return res.status(400).json({ error: 'Student already exists. ' });
+      return res.status(401).json({ error: 'Student already exists. ' });
     }
 
     const { id, name, email, age, height, weight } = await Student.create(
@@ -98,7 +98,7 @@ class StudentController {
     const student = await Student.findByPk(id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student does not exists. ' });
+      return res.status(404).json({ error: 'Student does not exists. ' });
     }
 
     const { email } = req.body;
@@ -108,7 +108,7 @@ class StudentController {
         const studentExists = await Student.findOne({ where: { email } });
 
         if (studentExists) {
-          return res.status(400).json({ error: 'Student already exists. ' });
+          return res.status(401).json({ error: 'Student already exists. ' });
         }
       }
     }
@@ -124,7 +124,7 @@ class StudentController {
     const student = await Student.findByPk(id);
 
     if (!student) {
-      return res.status(400).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'Student does not exists' });
     }
 
     const registration = await Registration.findOne({

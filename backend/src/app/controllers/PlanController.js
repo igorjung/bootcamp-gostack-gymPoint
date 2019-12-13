@@ -13,6 +13,10 @@ class PlanController {
         order: ['id'],
       });
 
+      if (!plan) {
+        return res.status(404).json({ error: 'Plan not found.' });
+      }
+
       return res.json(plan);
     }
 
@@ -20,6 +24,10 @@ class PlanController {
       attributes: ['id', 'title', 'duration', 'price'],
       order: ['id'],
     });
+
+    if (!plan) {
+      return res.status(404).json({ error: 'There are no plans yet.' });
+    }
 
     return res.json(plan);
   }
@@ -34,7 +42,7 @@ class PlanController {
     const plan = await Plan.findByPk(id);
 
     if (!plan) {
-      return res.status(400).json({ error: 'Plan not found' });
+      return res.status(404).json({ error: 'Plan not found' });
     }
 
     return res.json(plan);
@@ -81,7 +89,7 @@ class PlanController {
     const plan = await Plan.findByPk(id);
 
     if (!plan) {
-      return res.status(400).json({ error: 'Plan does not exists. ' });
+      return res.status(404).json({ error: 'Plan does not exists. ' });
     }
 
     const { title } = req.body;
@@ -104,6 +112,10 @@ class PlanController {
     const { id } = req.params;
 
     const plan = await Plan.findByPk(id);
+
+    if (!plan) {
+      return res.status(404).json({ error: 'Plan not found.' });
+    }
 
     await plan.destroy();
 

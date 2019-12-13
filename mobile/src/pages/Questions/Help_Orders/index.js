@@ -4,6 +4,8 @@ import pt from 'date-fns/locale/pt';
 import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
+import PropTypes from 'prop-types';
+
 import api from '~/services/api';
 import Header from '~/components/Header';
 import {
@@ -83,3 +85,9 @@ export default function HelpOrders({ navigation }) {
     </>
   );
 }
+
+HelpOrders.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+  }).isRequired,
+};

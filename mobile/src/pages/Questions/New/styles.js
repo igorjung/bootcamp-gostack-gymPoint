@@ -1,5 +1,4 @@
 import styled from 'styled-components/native';
-import { RectButton } from 'react-native-gesture-handler';
 
 import Button from '~/components/Button';
 
@@ -25,4 +24,10 @@ export const SubmitInput = styled.TextInput.attrs({
   border-radius: 4px;
   padding: 15px;
   height: 70%;
+`;
+
+export const IconContainer = styled.TouchableOpacity`
+  position: absolute;
+  left: 20px;
+  top: 15px;
 `;
