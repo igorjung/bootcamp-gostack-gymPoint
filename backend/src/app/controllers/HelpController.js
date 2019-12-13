@@ -5,12 +5,11 @@ import Student from '../models/Student';
 
 class HelpController {
   async index(req, res) {
-    const { student } = req.params;
+    const { student } = req.query;
 
     if (student) {
       const help = await Help.findAll({
-        where: { student_id: student, answer: null },
-        order: ['id'],
+        where: { student_id: student },
         include: [
           {
             model: Student,

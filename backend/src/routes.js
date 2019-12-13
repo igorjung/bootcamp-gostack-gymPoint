@@ -52,7 +52,7 @@ routes.get('/registrations/:id', authMiddleware, RegistrationController.show);
 
 routes.get('/students', StudentController.index);
 
-routes.get('/students/:id', authMiddleware, StudentController.show);
+routes.get('/students/:id', StudentController.show);
 
 routes.get('/students/:id/checkins', CheckinController.index);
 
@@ -61,8 +61,6 @@ routes.post('/students/:id/checkins', CheckinController.store);
 routes.get('/help-orders', HelpController.index);
 
 routes.post('/students/:id/help-orders', HelpController.store);
-
-routes.get('/help-orders', authMiddleware, AnswerController.index);
 
 routes.get('/help-orders/:id', authMiddleware, HelpController.show);
 

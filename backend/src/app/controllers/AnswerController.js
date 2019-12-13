@@ -6,12 +6,6 @@ import Student from '../models/Student';
 import Mail from '../../lib/Mail';
 
 class HelpController {
-  async index(req, res) {
-    const help = await Help.findAll({ where: { answer: null } });
-
-    return res.json(help);
-  }
-
   async store(req, res) {
     const schema = Yup.object().shape({
       answer: Yup.string().required(),
@@ -33,19 +27,19 @@ class HelpController {
 
     const { answer } = req.body;
 
-    await question.destroy();
+    const help = await Help.findByPk(id);
 
-    const help = await Help.create({
-      answer,
-      answer_at: new Date(),
-      question: question.question,
-      student_id: question.student_id,
-    });
+    await help.update(req.body);
 
     await Mail.sendMail({
       to: `${name} <${email}>`,
       subject: 'Questão Respondida!',
-      text: ` Caro ${name}, A sua questão "${question.question}" foi respondida com "${answer}".`,
+      template: 'question',
+      context: {
+        name,
+        question: question.question,
+        answer,
+      },
     });
 
     return res.json(help);
