@@ -10,7 +10,7 @@ import history from '~/services/history';
 import api from '~/services/api';
 
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
-import MaskInput from '~/components/MaskInput';
+import { HeightMask, WeightMask } from '~/components/MaskInput';
 
 const Schema = Yup.object().shape({
   name: Yup.string().required('O nome é obrigatório'),
@@ -18,25 +18,18 @@ const Schema = Yup.object().shape({
     .email('Insira um e-mail válido')
     .required('O e-mail é obrigatório'),
   age: Yup.string().required('A idade é obrigatória'),
-  weight: Yup.string().required('O peso é obrigatório'),
-  height: Yup.string().required('A altura é obrigatória'),
 });
 
 export default function StudentRegister() {
   const [loading, setLoading] = useState(false);
+  const [weight, setWeight] = useState(60);
+  const [height, setHeight] = useState(1.5);
 
   async function handleSubmit(data) {
     setLoading(true);
 
-    if (data.height > 9 && data.height < 99) {
-      data.height /= 10;
-    }
-    if (data.height > 99) {
-      data.height /= 100;
-    }
-
     try {
-      await api.post('students', data);
+      await api.post('students', { ...data, height, weight });
 
       setLoading(false);
 
@@ -50,6 +43,14 @@ export default function StudentRegister() {
         'Não foi possível realizar o cadastro, confira os dados do aluno'
       );
     }
+  }
+
+  function handleWeight(e) {
+    setWeight(e.target.value.replace('kg', ''));
+  }
+
+  function handleHeight(e) {
+    setHeight(e.target.value.replace('m', ''));
   }
 
   return (
@@ -79,21 +80,29 @@ export default function StudentRegister() {
 
       <FormContent id="studentRegister" schema={Schema} onSubmit={handleSubmit}>
         <strong>NOME COMPLETO</strong>
-        <Input name="name" type="text" />
+        <Input name="name" type="text" placeholder="Aluno" />
         <strong>ENDEREÇO DE E-MAIL</strong>
-        <Input name="email" type="email" />
+        <Input name="email" type="email" placeholder="aluno@email.com" />
         <div>
           <div>
             <strong>IDADE</strong>
-            <Input name="age" type="number" />
+            <Input name="age" type="number" placeholder="18" />
           </div>
           <div>
             <strong>PESO(em kg)</strong>
-            <MaskInput name="weight" />
+            <WeightMask
+              name="weight"
+              onChange={handleWeight}
+              placeholder={`${weight}kg`}
+            />
           </div>
           <div>
             <strong>ALTURA</strong>
-            <MaskInput name="height" />
+            <HeightMask
+              name="height"
+              onChange={handleHeight}
+              placeholder={`${height}m`}
+            />
           </div>
         </div>
       </FormContent>

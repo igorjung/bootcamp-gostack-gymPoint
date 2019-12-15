@@ -1,40 +1,55 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import MaskedInput from 'react-text-mask';
+import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 
-import PropTypes from 'prop-types';
+export function HeightMask({ ...inputProps }) {
+  const defaultMask = {
+    prefix: '',
+    suffix: 'm',
+    allowDecimal: true,
+    decimalSymbol: '.',
+    decimalLimit: 2,
+    integerLimit: 1,
+    allowNegative: false,
+    allowLeadingZeroes: false,
+    inputMode: 'numeric',
+    maskOptions: {},
+    requireDecimal: true,
+  };
+  const mask = createNumberMask(defaultMask);
 
-import { Input } from '@rocketseat/unform';
-import { Container } from './styles';
-
-export default function MaskInput({ name }) {
-  const [mask, setMask] = useState('');
-  const [inputValue, setInputValue] = useState('');
-
-  useEffect(() => {
-    switch (name) {
-      case 'weight': {
-        setMask('kg');
-        break;
-      }
-      case 'height': {
-        setMask('m');
-        break;
-      }
-      default:
-    }
-  }, [name]);
-
-  function handleChange(e) {
-    setInputValue(e.target.value);
-  }
-
-  return (
-    <Container>
-      <Input onChange={handleChange} name={name} type="number" step="any" />
-      <p>{inputValue ? mask : ''}</p>
-    </Container>
-  );
+  return <MaskedInput mask={mask} {...inputProps} />;
 }
 
-MaskInput.propTypes = {
-  name: PropTypes.string.isRequired,
-};
+export function WeightMask({ ...inputProps }) {
+  const defaultMask = {
+    prefix: '',
+    suffix: 'kg',
+    allowDecimal: true,
+    decimalSymbol: '.',
+    decimalLimit: 2,
+    integerLimit: 3,
+    allowNegative: false,
+    allowLeadingZeroes: false,
+    inputMode: 'numeric',
+    maskOptions: {},
+  };
+  const mask = createNumberMask(defaultMask);
+
+  return <MaskedInput mask={mask} {...inputProps} />;
+}
+
+export function CurrencyMask({ ...inputProps }) {
+  const defaultMask = {
+    prefix: 'R$',
+    suffix: ',00',
+    integerLimit: 3,
+    allowNegative: false,
+    allowLeadingZeroes: false,
+    inputMode: 'numeric',
+    maskOptions: {},
+  };
+  const mask = createNumberMask(defaultMask);
+
+  return <MaskedInput mask={mask} {...inputProps} />;
+}

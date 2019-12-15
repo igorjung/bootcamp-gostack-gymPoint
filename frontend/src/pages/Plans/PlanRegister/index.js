@@ -10,25 +10,25 @@ import history from '~/services/history';
 import api from '~/services/api';
 
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
+import { CurrencyMask } from '~/components/MaskInput';
 
 import format from '~/util/format';
 
 const Schema = Yup.object().shape({
   title: Yup.string().required('O Título é obrigatório'),
-  price: Yup.string().required('O preço é obrigatório'),
   duration: Yup.string().required('A duração é obrigatória'),
 });
 
 export default function PlanRegister() {
   const [loading, setLoading] = useState(false);
   const [duration, setDuration] = useState('');
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState(50);
 
   async function handleSubmit(data) {
     try {
       setLoading(true);
 
-      await api.post('plans', data);
+      await api.post('plans', { ...data, price });
 
       setLoading(false);
 
@@ -49,7 +49,7 @@ export default function PlanRegister() {
   }
 
   function handleChangePrice(e) {
-    setPrice(e.target.value);
+    setPrice(e.target.value.replace('R$', '').slice(0, -3));
   }
 
   const fullPrice = useMemo(() => {
@@ -84,7 +84,7 @@ export default function PlanRegister() {
 
       <FormContent id="planRegister" onSubmit={handleSubmit} schema={Schema}>
         <strong>TÍTULO DO PLANO</strong>
-        <Input name="title" type="text" />
+        <Input name="title" type="text" placeholder="Anual" />
 
         <div>
           <div>
@@ -94,16 +94,15 @@ export default function PlanRegister() {
               type="number"
               value={duration}
               onChange={handleChangeDuration}
+              placeholder="12"
             />
           </div>
           <div>
             <strong>PREÇO MENSAL</strong>
-            <Input
+            <CurrencyMask
               name="price"
-              type="number"
-              step="any"
-              value={price}
               onChange={handleChangePrice}
+              placeholder={`R$${price},00`}
             />
           </div>
           <div>

@@ -5,7 +5,7 @@ import Student from '../models/Student';
 
 class HelpController {
   async index(req, res) {
-    const { student } = req.query;
+    const { student, page = 1 } = req.query;
 
     if (student) {
       const help = await Help.findAll({
@@ -31,6 +31,8 @@ class HelpController {
     const help = await Help.findAll({
       where: { answer: null },
       order: ['id'],
+      limit: 7,
+      offset: (page - 1) * 7,
       include: [
         {
           model: Student,

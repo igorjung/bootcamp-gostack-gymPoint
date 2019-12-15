@@ -4,18 +4,31 @@ import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 
-import { MdAdd, MdCheckCircle, MdRefresh } from 'react-icons/md';
+import {
+  MdAdd,
+  MdCheckCircle,
+  MdRefresh,
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+} from 'react-icons/md';
 
 import api from '~/services/api';
 
 import Table from '~/styles/table';
+import {
+  Pagination,
+  PaginationButton,
+  PageIndicator,
+} from '~/styles/pagination';
 import { Container, LinkRegister, RefreshContent } from '~/styles/header';
 
 export default function Registrations() {
   const [registrations, setRegistrations] = useState([]);
+  const [page, setPage] = useState(1);
+  const [next, setNext] = useState(1);
 
   async function loadRegistration() {
-    const response = await api.get('registrations');
+    const response = await api.get(`registrations?page=${page}`);
 
     const data = response.data.map(registration => {
       const formatedStart = format(
@@ -42,11 +55,20 @@ export default function Registrations() {
     });
 
     setRegistrations(data);
+
+    const nextPage = await api.get(`registrations?page=${page + 1}`);
+
+    if (!nextPage.data.length) {
+      setNext(0);
+      return;
+    }
+    setNext(1);
   }
 
   useEffect(() => {
     loadRegistration();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   async function handleDelete(id) {
     if (window.confirm('Você realmente deseja deletar essa matrícula?')) {
@@ -56,6 +78,14 @@ export default function Registrations() {
 
       toast.success('Matrícula deletada com sucesso.');
     }
+  }
+
+  function handlePreview() {
+    setPage(page - 1);
+  }
+
+  function handleNext() {
+    setPage(page + 1);
   }
 
   return (
@@ -111,6 +141,22 @@ export default function Registrations() {
           ))}
         </tbody>
       </Table>
+
+      <Pagination>
+        <PaginationButton
+          type="submit"
+          disabled={page <= 1}
+          onClick={handlePreview}
+        >
+          <MdKeyboardArrowLeft color="#fff" size={20} />
+        </PaginationButton>
+        <PageIndicator>
+          <strong>{page}</strong>
+        </PageIndicator>
+        <PaginationButton type="submit" disabled={!next} onClick={handleNext}>
+          <MdKeyboardArrowRight color="#fff" size={20} />
+        </PaginationButton>
+      </Pagination>
     </>
   );
 }

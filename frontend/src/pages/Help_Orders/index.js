@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
-import { MdRefresh, MdClose } from 'react-icons/md';
+import {
+  MdRefresh,
+  MdClose,
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+} from 'react-icons/md';
 
 import * as Yup from 'yup';
 import { Input } from '@rocketseat/unform';
 import api from '~/services/api';
 
+import {
+  Pagination,
+  PaginationButton,
+  PageIndicator,
+} from '~/styles/pagination';
 import { Container, RefreshContent } from '~/styles/header';
 import { Filter, AnswerContainer, Table } from './styles';
 
@@ -19,15 +29,26 @@ export default function Help_Orders() {
   const [visible, setVisible] = useState(0);
   const [helpOrders, setHelpOrders] = useState([]);
   const [question, setQuestion] = useState([]);
+  const [page, setPage] = useState(1);
+  const [next, setNext] = useState(1);
 
   async function loadHelpOrders() {
-    const response = await api.get('help-orders');
+    const response = await api.get(`help-orders?page=${page}`);
     setHelpOrders(response.data);
+
+    const nextPage = await api.get(`help-orders?page=${page + 1}`);
+
+    if (!nextPage.data.length) {
+      setNext(0);
+      return;
+    }
+    setNext(1);
   }
 
   useEffect(() => {
     loadHelpOrders();
-  }, [visible]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, page]);
 
   async function loadQuestion(id) {
     const response = await api.get(`help-orders/${id}`);
@@ -55,6 +76,14 @@ export default function Help_Orders() {
         'Não foi possível enviar a resposta, tente novamente mais tarde.'
       );
     }
+  }
+
+  function handlePreview() {
+    setPage(page - 1);
+  }
+
+  function handleNext() {
+    setPage(page + 1);
   }
 
   return (
@@ -113,6 +142,22 @@ export default function Help_Orders() {
           ))}
         </tbody>
       </Table>
+
+      <Pagination>
+        <PaginationButton
+          type="submit"
+          disabled={page <= 1}
+          onClick={handlePreview}
+        >
+          <MdKeyboardArrowLeft color="#fff" size={20} />
+        </PaginationButton>
+        <PageIndicator>
+          <strong>{page}</strong>
+        </PageIndicator>
+        <PaginationButton type="submit" disabled={!next} onClick={handleNext}>
+          <MdKeyboardArrowRight color="#fff" size={20} />
+        </PaginationButton>
+      </Pagination>
     </>
   );
 }

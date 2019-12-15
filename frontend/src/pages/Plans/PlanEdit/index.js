@@ -12,18 +12,19 @@ import history from '~/services/history';
 import api from '~/services/api';
 
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
+import { CurrencyMask } from '~/components/MaskInput';
 
 import format from '~/util/format';
 
 const Schema = Yup.object().shape({
   title: Yup.string().required('O Título é obrigatório'),
-  price: Yup.string().required('O preço é obrigatório'),
   duration: Yup.string().required('A duração é obrigatória'),
 });
 
 export default function PlanEdit({ match }) {
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState([]);
+  const [price, setPrice] = useState('');
 
   useEffect(() => {
     async function loadPlan() {
@@ -35,6 +36,8 @@ export default function PlanEdit({ match }) {
         ...response.data,
         fullPrice: 'R$0,00',
       });
+
+      setPrice(response.data.price);
     }
 
     loadPlan();
@@ -44,7 +47,7 @@ export default function PlanEdit({ match }) {
     try {
       setLoading(true);
 
-      await api.put(`plans/${plan.id}`, data);
+      await api.put(`plans/${plan.id}`, { ...data, price });
 
       setLoading(false);
 
@@ -65,13 +68,13 @@ export default function PlanEdit({ match }) {
   }
 
   function handleChangePrice(e) {
-    setPlan({ ...plan, price: e.target.value });
+    setPrice(e.target.value.replace('R$', '').slice(0, -3));
   }
 
   const fullPrice = useMemo(() => {
-    const p = format(plan.price * plan.duration);
+    const p = format(price * plan.duration);
     return p;
-  }, [plan.duration, plan.price]);
+  }, [plan.duration, price]);
 
   return (
     <>
@@ -118,11 +121,9 @@ export default function PlanEdit({ match }) {
           </div>
           <div>
             <strong>PREÇO MENSAL</strong>
-            <Input
+            <CurrencyMask
               name="price"
-              type="number"
-              step="any"
-              value={plan.price || ''}
+              defaultValue={price}
               onChange={handleChangePrice}
             />
           </div>

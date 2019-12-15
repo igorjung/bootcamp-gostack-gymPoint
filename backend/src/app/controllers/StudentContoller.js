@@ -5,11 +5,25 @@ import Registration from '../models/Registration';
 
 class StudentController {
   async index(req, res) {
-    const { name } = req.query;
+    const { name, page = 1 } = req.query;
 
     if (!name) {
+      if (page === '0') {
+        const students = await Student.findAll({
+          order: ['name'],
+        });
+
+        if (!students) {
+          return res.status(404).json({ error: 'There are not students yet' });
+        }
+
+        return res.json(students);
+      }
+
       const students = await Student.findAll({
-        order: ['id'],
+        order: ['name'],
+        limit: 7,
+        offset: (page - 1) * 7,
       });
 
       if (!students) {
@@ -19,7 +33,7 @@ class StudentController {
       return res.json(students);
     }
 
-    const student = await Student.findOne({
+    const student = await Student.findAll({
       where: {
         name,
       },

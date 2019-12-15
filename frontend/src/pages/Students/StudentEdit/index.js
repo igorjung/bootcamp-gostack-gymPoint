@@ -12,7 +12,7 @@ import history from '~/services/history';
 import api from '~/services/api';
 
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
-import MaskInput from '~/components/MaskInput';
+import { HeightMask, WeightMask } from '~/components/MaskInput';
 
 const Schema = Yup.object().shape({
   name: Yup.string().required('O nome é obrigatório'),
@@ -20,13 +20,13 @@ const Schema = Yup.object().shape({
     .email('Insira um e-mail válido')
     .required('O e-mail é obrigatório'),
   age: Yup.string().required('A idade é obrigatória'),
-  weight: Yup.string().required('O peso é obrigatório'),
-  height: Yup.string().required('A altura é obrigatória'),
 });
 
 export default function StudentEdit({ match }) {
   const [loading, setLoading] = useState(false);
   const [student, setStudent] = useState([]);
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
 
   useEffect(() => {
     async function loadStudent() {
@@ -35,6 +35,8 @@ export default function StudentEdit({ match }) {
       const response = await api.get(`students/${id}`);
 
       setStudent(response.data);
+      setHeight(response.data.height);
+      setWeight(response.data.weight);
     }
 
     loadStudent();
@@ -43,15 +45,8 @@ export default function StudentEdit({ match }) {
   async function handleSubmit(data) {
     setLoading(true);
 
-    if (data.height > 9 && data.height < 99) {
-      data.height /= 10;
-    }
-    if (data.height > 99) {
-      data.height /= 100;
-    }
-
     try {
-      await api.put(`students/${student.id}`, data);
+      await api.put(`students/${student.id}`, { ...data, height, weight });
 
       setLoading(false);
 
@@ -63,6 +58,14 @@ export default function StudentEdit({ match }) {
 
       toast.error('Não foi possível atualizar, confira os dados do aluno');
     }
+  }
+
+  function handleWeight(e) {
+    setWeight(e.target.value.replace('kg', ''));
+  }
+
+  function handleHeight(e) {
+    setHeight(e.target.value.replace('m', ''));
   }
 
   return (
@@ -107,11 +110,19 @@ export default function StudentEdit({ match }) {
           </div>
           <div>
             <strong>PESO(em kg)</strong>
-            <MaskInput name="weight" />
+            <WeightMask
+              name="weight"
+              onChange={handleWeight}
+              defaultValue={weight}
+            />
           </div>
           <div>
             <strong>ALTURA</strong>
-            <MaskInput name="height" />
+            <HeightMask
+              name="height"
+              onChange={handleHeight}
+              defaultValue={height}
+            />
           </div>
         </div>
       </FormContent>

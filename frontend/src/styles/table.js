@@ -5,7 +5,7 @@ const Table = styled.table`
   margin: 30px 0;
   width: auto;
   background: #fff;
-  padding: 30px 25px;
+  padding: 30px 25px 0px 25px;
   color: #333;
 
   tr {

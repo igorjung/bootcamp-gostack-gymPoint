@@ -9,9 +9,13 @@ import Mail from '../../lib/Mail';
 
 class RegistrationController {
   async index(req, res) {
+    const { page = 1 } = req.query;
+
     const registrations = await Registration.findAll({
       attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
       order: ['id'],
+      limit: 6,
+      offset: (page - 1) * 6,
       include: [
         {
           model: Student,

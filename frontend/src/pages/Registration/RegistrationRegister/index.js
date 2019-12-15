@@ -35,7 +35,7 @@ export default function RegistrationRegister() {
 
   useEffect(() => {
     async function loadPlans() {
-      const { data } = await api.get('plans');
+      const { data } = await api.get('plans?page=0');
 
       setPlans(data);
     }
@@ -45,7 +45,7 @@ export default function RegistrationRegister() {
 
   async function loadStudents(inputValue) {
     if (!inputValue) {
-      const { data } = await api.get('students');
+      const { data } = await api.get('students?page=0');
 
       setStudents(data);
 

@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MdAdd, MdRefresh } from 'react-icons/md';
+import {
+  MdAdd,
+  MdRefresh,
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+} from 'react-icons/md';
 import { toast } from 'react-toastify';
 
 import api from '~/services/api';
 
 import Table from '~/styles/table';
+import {
+  Pagination,
+  PaginationButton,
+  PageIndicator,
+} from '~/styles/pagination';
 import { Container, LinkRegister, RefreshContent } from '~/styles/header';
 
 export default function Plans() {
   const [plans, setPlans] = useState([]);
+  const [page, setPage] = useState(1);
+  const [next, setNext] = useState(1);
 
   async function loadPlans() {
-    const response = await api.get('plans');
+    const response = await api.get(`plans?page=${page}`);
 
     const { format } = new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -33,11 +45,20 @@ export default function Plans() {
     });
 
     setPlans(data);
+
+    const nextPage = await api.get(`plans?page=${page + 1}`);
+
+    if (!nextPage.data.length) {
+      setNext(0);
+      return;
+    }
+    setNext(1);
   }
 
   useEffect(() => {
     loadPlans();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   async function handleDelete(id) {
     if (window.confirm('Você realmente deseja deletar esse plano?')) {
@@ -47,6 +68,14 @@ export default function Plans() {
 
       toast.success('Plano deletado com sucesso.');
     }
+  }
+
+  function handlePreview() {
+    setPage(page - 1);
+  }
+
+  function handleNext() {
+    setPage(page + 1);
   }
 
   return (
@@ -90,6 +119,22 @@ export default function Plans() {
           ))}
         </tbody>
       </Table>
+
+      <Pagination>
+        <PaginationButton
+          type="submit"
+          disabled={page <= 1}
+          onClick={handlePreview}
+        >
+          <MdKeyboardArrowLeft color="#fff" size={20} />
+        </PaginationButton>
+        <PageIndicator>
+          <strong>{page}</strong>
+        </PageIndicator>
+        <PaginationButton type="submit" disabled={!next} onClick={handleNext}>
+          <MdKeyboardArrowRight color="#fff" size={20} />
+        </PaginationButton>
+      </Pagination>
     </>
   );
 }
