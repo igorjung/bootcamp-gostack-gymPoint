@@ -10,6 +10,9 @@ class HelpController {
     if (student) {
       const help = await Help.findAll({
         where: { student_id: student },
+        order: [['id', 'DESC']],
+        limit: 7,
+        offset: (page - 1) * 7,
         include: [
           {
             model: Student,
@@ -22,7 +25,7 @@ class HelpController {
       if (!help) {
         return res
           .status(404)
-          .json({ error: 'There are not help orders for this student' });
+          .json({ error: 'Não existem pedidos de auxílio no momento.' });
       }
 
       return res.json(help);
@@ -43,7 +46,9 @@ class HelpController {
     });
 
     if (!help) {
-      return res.status(404).json({ error: 'There are not help orders' });
+      return res
+        .status(404)
+        .json({ error: 'Não existem pedidos de auxílio no momento.' });
     }
 
     return res.json(help);
@@ -53,7 +58,9 @@ class HelpController {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
     const help = await Help.findOne({
@@ -68,7 +75,9 @@ class HelpController {
     });
 
     if (!help) {
-      return res.status(404).json({ error: 'Question not found' });
+      return res
+        .status(404)
+        .json({ error: 'O pedido de auxílio não foi encontrado.' });
     }
 
     return res.json(help);
@@ -80,7 +89,9 @@ class HelpController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
     const student_id = req.params.id;
@@ -88,7 +99,9 @@ class HelpController {
     const student = await Student.findByPk(student_id);
 
     if (!student) {
-      return res.status(404).json({ error: 'Student does not exists' });
+      return res
+        .status(404)
+        .json({ error: 'O estudante selecionado não existe.' });
     }
 
     const { question } = req.body;

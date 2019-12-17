@@ -2,54 +2,55 @@ import React, { useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { MdKeyboardArrowLeft, MdCheck } from 'react-icons/md';
-
 import { Input } from '@rocketseat/unform';
 import * as Yup from 'yup';
+
 import FormContent from '~/styles/form';
 import history from '~/services/history';
 import api from '~/services/api';
-
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
 import { CurrencyMask } from '~/components/MaskInput';
-
 import format from '~/util/format';
 
 const Schema = Yup.object().shape({
   title: Yup.string().required('O Título é obrigatório'),
-  duration: Yup.string().required('A duração é obrigatória'),
+  duration: Yup.number()
+    .integer()
+    .typeError('A duração é obrigatória')
+    .required('A duração é obrigatória'),
+  price: Yup.string().required('O preço é obrigatório'),
 });
 
 export default function PlanRegister() {
   const [loading, setLoading] = useState(false);
   const [duration, setDuration] = useState('');
-  const [price, setPrice] = useState(50);
+  const [price, setPrice] = useState('');
 
-  async function handleSubmit(data) {
+  async function handleSubmit(formData) {
     try {
+      const data = {
+        ...formData,
+        price: formData.price.replace(',', '.'),
+      };
+
       setLoading(true);
 
-      await api.post('plans', { ...data, price });
+      await api.post('plans', { ...data });
 
       setLoading(false);
 
       history.push('/plans');
 
       toast.success('O plano foi criado com sucesso.');
-    } catch {
+    } catch (e) {
       setLoading(false);
 
-      toast.error(
-        'Não foi possível realizar o cadastro, confira os dados do plano'
-      );
+      toast.error(`${e.response.data.error}`);
     }
   }
 
   function handleChangeDuration(e) {
     setDuration(e.target.value);
-  }
-
-  function handleChangePrice(e) {
-    setPrice(e.target.value.replace('R$', '').slice(0, -3));
   }
 
   const fullPrice = useMemo(() => {
@@ -92,17 +93,18 @@ export default function PlanRegister() {
             <Input
               name="duration"
               type="number"
+              min={1}
               value={duration}
               onChange={handleChangeDuration}
-              placeholder="12"
+              placeholder="0"
             />
           </div>
           <div>
             <strong>PREÇO MENSAL</strong>
             <CurrencyMask
               name="price"
-              onChange={handleChangePrice}
-              placeholder={`R$${price},00`}
+              setChange={e => setPrice(e)}
+              placeholder="R$0,00"
             />
           </div>
           <div>

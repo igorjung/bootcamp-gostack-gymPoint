@@ -2,9 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { signOut } from '~/store/modules/auth/actions';
-
 import logo from '~/assets/logo02.png';
-
 import { Container, Content, MenuLink, NavContainer } from './styles';
 
 const links = [
@@ -18,7 +16,7 @@ const links = [
   },
   {
     name: 'MATRÍCULAS',
-    href: '/registrations',
+    href: '/enrollments',
   },
   {
     name: 'PEDIDOS DE AUXÍLIO',

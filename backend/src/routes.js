@@ -3,7 +3,7 @@ import { Router } from 'express';
 import SessionController from './app/controllers/SessionController';
 import StudentController from './app/controllers/StudentContoller';
 import PlanController from './app/controllers/PlanController';
-import RegistrationController from './app/controllers/RegistrationController';
+import EnrollmentController from './app/controllers/EnrollmentController.js';
 import CheckinController from './app/controllers/CheckinController';
 import HelpController from './app/controllers/HelpController';
 import AnswerController from './app/controllers/AnswerController';
@@ -28,27 +28,15 @@ routes.get('/plans', authMiddleware, PlanController.index);
 
 routes.get('/plans/:id', authMiddleware, PlanController.show);
 
-routes.post(
-  '/students/:id/registrations',
-  authMiddleware,
-  RegistrationController.store
-);
+routes.post('/enrollments', authMiddleware, EnrollmentController.store);
 
-routes.put(
-  '/students/:id/registrations',
-  authMiddleware,
-  RegistrationController.update
-);
+routes.put('/enrollments/:id', authMiddleware, EnrollmentController.update);
 
-routes.delete(
-  '/registrations/:id',
-  authMiddleware,
-  RegistrationController.delete
-);
+routes.delete('/enrollments/:id', authMiddleware, EnrollmentController.delete);
 
-routes.get('/registrations', authMiddleware, RegistrationController.index);
+routes.get('/enrollments', authMiddleware, EnrollmentController.index);
 
-routes.get('/registrations/:id', authMiddleware, RegistrationController.show);
+routes.get('/enrollments/:id', authMiddleware, EnrollmentController.show);
 
 routes.get('/students', StudentController.index);
 

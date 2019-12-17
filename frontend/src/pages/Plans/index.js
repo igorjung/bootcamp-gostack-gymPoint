@@ -9,7 +9,6 @@ import {
 import { toast } from 'react-toastify';
 
 import api from '~/services/api';
-
 import Table from '~/styles/table';
 import {
   Pagination,
@@ -61,12 +60,16 @@ export default function Plans() {
   }, [page]);
 
   async function handleDelete(id) {
-    if (window.confirm('Você realmente deseja deletar esse plano?')) {
-      await api.delete(`plans/${id}`);
+    try {
+      if (window.confirm('Você realmente deseja deletar esse plano?')) {
+        await api.delete(`plans/${id}`);
 
-      loadPlans();
+        loadPlans();
 
-      toast.success('Plano deletado com sucesso.');
+        toast.success('Plano deletado com sucesso.');
+      }
+    } catch (e) {
+      toast.error(`${e.response.data.error}`);
     }
   }
 

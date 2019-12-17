@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
-import { format, parseISO } from 'date-fns';
-import pt from 'date-fns/locale/pt';
-
 import {
   MdAdd,
   MdCheckCircle,
@@ -11,9 +8,10 @@ import {
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
 } from 'react-icons/md';
+import { format, parseISO } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 
 import api from '~/services/api';
-
 import Table from '~/styles/table';
 import {
   Pagination,
@@ -22,17 +20,17 @@ import {
 } from '~/styles/pagination';
 import { Container, LinkRegister, RefreshContent } from '~/styles/header';
 
-export default function Registrations() {
-  const [registrations, setRegistrations] = useState([]);
+export default function Enrollments() {
+  const [enrollments, setEnrollments] = useState([]);
   const [page, setPage] = useState(1);
   const [next, setNext] = useState(1);
 
-  async function loadRegistration() {
-    const response = await api.get(`registrations?page=${page}`);
+  async function loadEnrollment() {
+    const response = await api.get(`enrollments?page=${page}`);
 
-    const data = response.data.map(registration => {
+    const data = response.data.map(enrollment => {
       const formatedStart = format(
-        parseISO(registration.start_date),
+        parseISO(enrollment.start_date),
         "d 'de' MMMM 'de' yyyy",
         {
           locale: pt,
@@ -40,7 +38,7 @@ export default function Registrations() {
       );
 
       const formatedEnd = format(
-        parseISO(registration.end_date),
+        parseISO(enrollment.end_date),
         "d 'de' MMMM 'de' yyyy",
         {
           locale: pt,
@@ -48,15 +46,15 @@ export default function Registrations() {
       );
 
       return {
-        ...registration,
+        ...enrollment,
         formatedEnd,
         formatedStart,
       };
     });
 
-    setRegistrations(data);
+    setEnrollments(data);
 
-    const nextPage = await api.get(`registrations?page=${page + 1}`);
+    const nextPage = await api.get(`enrollments?page=${page + 1}`);
 
     if (!nextPage.data.length) {
       setNext(0);
@@ -66,17 +64,21 @@ export default function Registrations() {
   }
 
   useEffect(() => {
-    loadRegistration();
+    loadEnrollment();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   async function handleDelete(id) {
-    if (window.confirm('Você realmente deseja deletar essa matrícula?')) {
-      await api.delete(`registrations/${id}`);
+    try {
+      if (window.confirm('Você realmente deseja deletar essa matrícula?')) {
+        await api.delete(`registrations/${id}`);
 
-      loadRegistration();
+        loadEnrollment();
 
-      toast.success('Matrícula deletada com sucesso.');
+        toast.success('Matrícula deletada com sucesso.');
+      }
+    } catch (e) {
+      toast.error(`${e.response.data.error}`);
     }
   }
 
@@ -93,14 +95,14 @@ export default function Registrations() {
       <Container>
         <h1>Gerenciando matrículas</h1>
         <div>
-          <Link to="registrations/register">
+          <Link to="enrollments/register">
             <LinkRegister>
               <MdAdd color="#fff" size={20} />
               <strong>Cadastrar</strong>
             </LinkRegister>
           </Link>
 
-          <RefreshContent type="button" onClick={loadRegistration}>
+          <RefreshContent type="button" onClick={loadEnrollment}>
             <MdRefresh color="#999" size={20} />
           </RefreshContent>
         </div>
@@ -116,23 +118,23 @@ export default function Registrations() {
             <th align="center">ATIVA</th>
           </tr>
 
-          {registrations.map(registration => (
-            <tr key={registration.id}>
-              <td>{registration.student.name}</td>
-              <td align="center">{registration.plan.title}</td>
-              <td align="center">{registration.formatedStart}</td>
-              <td align="center">{registration.formatedEnd}</td>
+          {enrollments.map(enrollment => (
+            <tr key={enrollment.id}>
+              <td>{enrollment.student.name}</td>
+              <td align="center">{enrollment.plan.title}</td>
+              <td align="center">{enrollment.formatedStart}</td>
+              <td align="center">{enrollment.formatedEnd}</td>
               <td align="center">
                 <MdCheckCircle
                   size={20}
-                  color={registration.active ? '#32CD32' : '#ddd'}
+                  color={enrollment.active ? '#32CD32' : '#ddd'}
                 />
               </td>
               <td align="right">
-                <Link to={`/registrations/${registration.id}`}>editar</Link>
+                <Link to={`/enrollments/${enrollment.id}`}>editar</Link>
                 <button
                   type="button"
-                  onClick={() => handleDelete(registration.id)}
+                  onClick={() => handleDelete(enrollment.id)}
                 >
                   apagar
                 </button>

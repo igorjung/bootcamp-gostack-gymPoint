@@ -3,9 +3,9 @@ import styled from 'styled-components';
 const Table = styled.table`
   border-spacing: 0;
   margin: 30px 0;
-  width: auto;
+  width: 100%;
   background: #fff;
-  padding: 30px 25px 0px 25px;
+  padding: 30px 25px 10px 25px;
   color: #333;
 
   tr {

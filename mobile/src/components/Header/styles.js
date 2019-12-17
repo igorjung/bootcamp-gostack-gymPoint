@@ -3,15 +3,23 @@ import styled from 'styled-components/native';
 export const Container = styled.View`
   position: relative;
   height: 46px;
-  padding-top: 10px;
+  padding: 10px;
   background: #fff;
   box-shadow: 10px 0px 0px #ddd;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 export const LogoContainer = styled.View`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+`;
+
+export const EmptyStyle = styled.View`
+  height: 20px;
+  width: 20px;
 `;
 
 export const Image = styled.Image.attrs({
@@ -28,11 +36,7 @@ export const Text = styled.Text`
 `;
 
 export const LogoutButton = styled.TouchableOpacity`
-  position: absolute;
-  right: 20px;
-  top: 15px;
-
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-end;
   align-items: center;
 `;

@@ -1,19 +1,19 @@
 import * as Yup from 'yup';
 import { isBefore, format, addMonths } from 'date-fns';
 
-import Registration from '../models/Registration';
+import Enrollment from '../models/Enrollment';
 import Plan from '../models/Plan';
 import Student from '../models/Student';
 
 import Mail from '../../lib/Mail';
 
-class RegistrationController {
+class EnrollmentController {
   async index(req, res) {
     const { page = 1 } = req.query;
 
-    const registrations = await Registration.findAll({
+    const enrollments = await Enrollment.findAll({
       attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
-      order: ['id'],
+      order: [['id', 'DESC']],
       limit: 6,
       offset: (page - 1) * 6,
       include: [
@@ -30,21 +30,23 @@ class RegistrationController {
       ],
     });
 
-    if (!registrations) {
-      return res.status(404).json({ error: 'There are not registrations yet' });
+    if (!enrollments) {
+      return res.status(404).json({ error: 'Não há matrículas ainda.' });
     }
 
-    return res.json(registrations);
+    return res.json(enrollments);
   }
 
   async show(req, res) {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos' });
     }
 
-    const registration = await Registration.findOne({
+    const enrollments = await Enrollment.findOne({
       where: { id },
       attributes: ['id', 'start_date', 'end_date', 'active'],
       include: [
@@ -61,39 +63,42 @@ class RegistrationController {
       ],
     });
 
-    if (!registration) {
-      return res.status(404).json({ error: 'Registration not found' });
+    if (!enrollments) {
+      return res.status(404).json({ error: 'Matrícula não encontrada' });
     }
 
-    return res.json(registration);
+    return res.json(enrollments);
   }
 
   async store(req, res) {
     const schema = Yup.object().shape({
       plan_id: Yup.number().required(),
       start_date: Yup.date().required(),
+      student_id: Yup.number().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
-    const student_id = req.params.id;
+    const { student_id } = req.body;
 
     const student = await Student.findByPk(student_id);
 
     if (!student) {
-      return res.status(404).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'O estudante não foi encontrado.' });
     }
 
-    const studentHasRegistration = await Registration.findOne({
+    const studentHasenrollments = await Enrollment.findOne({
       where: { student_id },
     });
 
-    if (studentHasRegistration) {
+    if (studentHasenrollments) {
       return res
         .status(401)
-        .json({ error: 'Only one registration for each Student' });
+        .json({ error: 'Só é permitido uma matrícula por aluno.' });
     }
 
     const { plan_id } = req.body;
@@ -101,7 +106,7 @@ class RegistrationController {
     const plan = await Plan.findByPk(plan_id);
 
     if (!plan) {
-      return res.status(404).json({ error: 'Plan does not exists' });
+      return res.status(404).json({ error: 'O plano selecionado não existe.' });
     }
 
     const { price, duration } = plan;
@@ -111,7 +116,9 @@ class RegistrationController {
     const [month, day, year] = start_date.split('/');
 
     if (isBefore(new Date(year, month - 1, day), new Date())) {
-      return res.status(400).json({ error: 'Past dates are not permitted' });
+      return res
+        .status(400)
+        .json({ error: 'Datas passadas não são permitidas' });
     }
 
     const end_date = addMonths(new Date(year, month - 1, day), duration);
@@ -123,7 +130,7 @@ class RegistrationController {
       'dd/MM/yyyy'
     );
 
-    const registration = await Registration.create({
+    const enrollments = await Enrollment.create({
       price,
       student_id,
       plan_id,
@@ -134,7 +141,7 @@ class RegistrationController {
     await Mail.sendMail({
       to: `${student.name} <${student.email}>`,
       subject: 'Matricula cadastrada!',
-      template: 'registration',
+      template: 'enrollments',
       context: {
         student: student.name,
         plan: plan.title,
@@ -144,59 +151,68 @@ class RegistrationController {
       },
     });
 
-    return res.json(registration);
+    return res.json(enrollments);
   }
 
   async update(req, res) {
     const schema = Yup.object().shape({
       plan_id: Yup.number().required(),
       start_date: Yup.date().required(),
+      student_id: Yup.number().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
-    const student_id = req.params.id;
+    const { id } = req.params;
 
-    const student = await Student.findByPk(student_id);
+    const enrollment = await Enrollment.findByPk(id);
 
-    if (!student) {
-      return res.status(404).json({ error: 'Student does not exists' });
+    if (!enrollment) {
+      return res
+        .status(404)
+        .json({ error: 'A matrícula selecionado não existe.' });
     }
 
-    const studentRegistration = await Registration.findOne({
+    const { student_id } = req.body;
+
+    const hasEnrollment = await Enrollment.findOne({
       where: { student_id },
     });
 
-    if (!studentRegistration) {
+    if (hasEnrollment && hasEnrollment.id !== enrollment.id) {
       return res
         .status(404)
-        .json({ error: 'Student does not have Registration' });
+        .json({ error: 'O estudante já possuí uma matrícula.' });
     }
 
     const { plan_id, start_date } = req.body;
 
-    if (plan_id !== studentRegistration.plan_id) {
+    if (plan_id !== enrollment.plan_id) {
       const plan = await Plan.findByPk(plan_id);
       if (!plan) {
-        return res.status(404).json({ error: 'Plan does not exists' });
+        return res
+          .status(404)
+          .json({ error: 'O plano selecionado não existe.' });
       }
     }
 
     const [month, day, year] = start_date.split('/');
 
     if (isBefore(new Date(year, month - 1, day), new Date())) {
-      return res.status(400).json({ error: 'Past dates are not permitted' });
+      return res
+        .status(400)
+        .json({ error: 'Datas passadas não são permitidas.' });
     }
 
     const { duration, price } = await Plan.findByPk(plan_id);
 
     const end_date = addMonths(new Date(year, month - 1, day), duration);
 
-    const registration = await Registration.findByPk(studentRegistration.id);
-
-    await registration.update({
+    await enrollment.update({
       price,
       student_id,
       plan_id,
@@ -204,22 +220,22 @@ class RegistrationController {
       end_date,
     });
 
-    return res.json(registration);
+    return res.json(enrollment);
   }
 
   async delete(req, res) {
     const { id } = req.params;
 
-    const registration = await Registration.findOne({ where: { id } });
+    const enrollments = await Enrollment.findOne({ where: { id } });
 
-    if (!registration) {
-      return res.status(404).json({ error: 'Registration not found' });
+    if (!enrollments) {
+      return res.status(404).json({ error: 'A matrícula não foi encontrada.' });
     }
 
-    await registration.destroy();
+    await enrollments.destroy();
 
     return res.json();
   }
 }
 
-export default new RegistrationController();
+export default new EnrollmentController();

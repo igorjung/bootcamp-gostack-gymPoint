@@ -39,7 +39,6 @@ export const AnswerText = styled.Text`
 `;
 
 export const IconContainer = styled.TouchableOpacity`
-  position: absolute;
-  left: 20px;
-  top: 15px;
+  justify-content: center;
+  align-items: center;
 `;

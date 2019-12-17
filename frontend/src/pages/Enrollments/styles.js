@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
-export const Content = styled.div`
+import { Form } from '@rocketseat/unform';
+
+export const FormContainer = styled(Form)`
   border-spacing: 0;
   margin: 30px 0;
   width: auto;
@@ -15,32 +17,19 @@ export const Content = styled.div`
     color: #333;
     margin-top: 10px;
   }
+
+  span {
+    margin-top: 10px;
+  }
 `;
 
-export const InputContent = styled.input`
+export const InputContainer = styled.input`
   margin-top: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   height: 40px;
   padding: 15px;
   width: 100%;
-`;
-
-export const DatePicker = styled.input`
-  margin-top: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  height: 40px;
-  padding: 15px;
-  width: 100%;
-
-  &::-webkit-inner-spin-button {
-    display: none;
-  }
-
-  &::-webkit-clear-button {
-    display: none;
-  }
 `;
 
 export const FlexLine = styled.div`

@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { MdKeyboardArrowLeft, MdCheck } from 'react-icons/md';
-
 import PropTypes from 'prop-types';
-
 import { Input } from '@rocketseat/unform';
 import * as Yup from 'yup';
+
 import FormContent from '~/styles/form';
 import history from '~/services/history';
 import api from '~/services/api';
@@ -19,14 +18,21 @@ const Schema = Yup.object().shape({
   email: Yup.string()
     .email('Insira um e-mail válido')
     .required('O e-mail é obrigatório'),
-  age: Yup.string().required('A idade é obrigatória'),
+  age: Yup.number()
+    .integer()
+    .typeError('A idade é obrigatória')
+    .required('A idade é obrigatória'),
+  weight: Yup.number()
+    .typeError('O peso é obrigatório')
+    .required('O peso é obrigatório'),
+  height: Yup.number()
+    .typeError('A altura é obrigatŕoia')
+    .required('A altura é obrigatŕoia'),
 });
 
 export default function StudentEdit({ match }) {
   const [loading, setLoading] = useState(false);
   const [student, setStudent] = useState([]);
-  const [weight, setWeight] = useState('');
-  const [height, setHeight] = useState('');
 
   useEffect(() => {
     async function loadStudent() {
@@ -35,8 +41,6 @@ export default function StudentEdit({ match }) {
       const response = await api.get(`students/${id}`);
 
       setStudent(response.data);
-      setHeight(response.data.height);
-      setWeight(response.data.weight);
     }
 
     loadStudent();
@@ -46,26 +50,18 @@ export default function StudentEdit({ match }) {
     setLoading(true);
 
     try {
-      await api.put(`students/${student.id}`, { ...data, height, weight });
+      await api.put(`students/${student.id}`, { ...data });
 
       setLoading(false);
 
       toast.success('Os dados do aluno foram atualizados com sucesso.');
 
       history.push('/students');
-    } catch {
+    } catch (e) {
       setLoading(false);
 
-      toast.error('Não foi possível atualizar, confira os dados do aluno');
+      toast.error(`${e.response.data.error}`);
     }
-  }
-
-  function handleWeight(e) {
-    setWeight(e.target.value.replace('kg', ''));
-  }
-
-  function handleHeight(e) {
-    setHeight(e.target.value.replace('m', ''));
   }
 
   return (
@@ -110,19 +106,11 @@ export default function StudentEdit({ match }) {
           </div>
           <div>
             <strong>PESO(em kg)</strong>
-            <WeightMask
-              name="weight"
-              onChange={handleWeight}
-              defaultValue={weight}
-            />
+            <WeightMask name="weight" />
           </div>
           <div>
             <strong>ALTURA</strong>
-            <HeightMask
-              name="height"
-              onChange={handleHeight}
-              defaultValue={height}
-            />
+            <HeightMask name="height" />
           </div>
         </div>
       </FormContent>

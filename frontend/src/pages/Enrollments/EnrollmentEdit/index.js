@@ -1,47 +1,48 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import AsyncSelect from 'react-select/async';
-import Select from 'react-select';
-
-import { addMonths, addDays, format, parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { MdKeyboardArrowLeft, MdCheck } from 'react-icons/md';
-
-import {
-  Content,
-  InputContent,
-  DatePicker,
-  FlexLine,
-  FlexColumn,
-} from '../styles';
+import PropTypes from 'prop-types';
+import { addDays, addMonths, format, parseISO } from 'date-fns';
 
 import history from '~/services/history';
 import api from '~/services/api';
-
+import { FormContainer, InputContainer, FlexLine, FlexColumn } from '../styles';
+import { NameSelect, PlanSelect } from '~/components/Select';
+import DateInput from '~/components/DateInput';
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
-import { StudentsSelect, DefaultSelect } from '~/styles/asyncSelect';
-
 import formatCurrency from '~/util/format';
 
-export default function RegistrationRegister() {
+export default function EnrollmentEdit({ match }) {
   const [loading, setLoading] = useState(false);
+  const [enrollments, setEnrollments] = useState([]);
   const [plans, setPlans] = useState([]);
   const [students, setStudents] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [selectPlan, setSelectPlan] = useState('');
-  const [selectStudent, setSelectStudent] = useState('');
 
   const minDate = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 
+  const { id } = match.params;
   useEffect(() => {
+    async function loadData() {
+      const { data } = await api.get(`enrollments/${id}`);
+
+      const start_date = parseISO(data.start_date);
+
+      setEnrollments({ ...data, start_date });
+    }
+
     async function loadPlans() {
-      const { data } = await api.get('plans?page=0');
+      const { data } = await api.get('plans');
 
       setPlans(data);
     }
 
+    loadData();
+
     loadPlans();
-  }, []);
+  }, [id]);
 
   async function loadStudents(inputValue) {
     if (!inputValue) {
@@ -59,14 +60,10 @@ export default function RegistrationRegister() {
     return studentOption;
   }
 
-  function handleDate(e) {
-    setStartDate(e.target.value);
-  }
-
   const endDate = useMemo(() => {
     const { duration } = selectPlan;
     if (duration && startDate) {
-      return format(addMonths(parseISO(startDate), duration), 'dd/MM/yy');
+      return format(addMonths(startDate, duration), 'dd/MM/yy');
     }
     return format(addDays(new Date(), 1), 'dd/MM/yy');
   }, [startDate, selectPlan]);
@@ -79,105 +76,86 @@ export default function RegistrationRegister() {
     return 'R$0,00';
   }, [selectPlan]);
 
-  async function handleRegister() {
+  async function handleSubmit(formData) {
     try {
-      const { id: student_id } = selectStudent;
+      const { id: plan_id } = formData.plan ? formData.plan : enrollments.plan;
 
-      const { id: plan_id } = selectPlan;
+      const { id: student_id } = formData.student
+        ? formData.student
+        : enrollments.student;
+
+      const start_date = format(formData.start_date, 'MM/dd/yyyy');
 
       setLoading(true);
 
       const data = {
         plan_id,
-        start_date: format(parseISO(startDate), 'MM/dd/yyyy'),
+        start_date,
+        student_id,
       };
 
-      await api.post(`students/${student_id}/registrations`, data);
+      await api.put(`enrollments/${id}`, data);
 
       setLoading(false);
 
-      history.push('/registrations');
+      history.push('/enrollments');
 
-      toast.success('A matrícula foi cadastrada com sucesso.');
-    } catch {
+      toast.success('A matrícula foi editada com sucesso.');
+    } catch (e) {
       setLoading(false);
 
-      toast.error(
-        'Não foi possível realizar o cadastro, confira os dados da matrícula'
-      );
+      toast.error(`${e.response.data.error}`);
     }
   }
 
   return (
     <>
       <Container>
-        <h1>Cadastro de matrícula</h1>
+        <h1>Edição de matrícula</h1>
         <div>
-          <Link to="/registrations">
+          <Link to="/enrollments">
             <LinkBack>
               <MdKeyboardArrowLeft color="#fff" size={20} />
               <strong>Voltar</strong>
             </LinkBack>
           </Link>
 
-          <ButtonSave type="button" onClick={handleRegister}>
+          <ButtonSave type="submit" form="enrollmentEdit">
             {loading ? (
               <strong>Carregando...</strong>
             ) : (
               <>
                 <MdCheck color="#fff" size={16} />
-                <strong>Cadastrar</strong>
+                <strong>Salvar</strong>
               </>
             )}
           </ButtonSave>
         </div>
       </Container>
 
-      <Content>
+      <FormContainer
+        id="enrollmentEdit"
+        onSubmit={handleSubmit}
+        initialData={enrollments}
+      >
         <strong>ALUNO</strong>
-        <AsyncSelect
-          name="student"
-          defaultOptions
-          loadOptions={loadStudents}
-          getOptionValue={option => option.id}
-          getOptionLabel={option => option.name}
-          onChange={inputValue => setSelectStudent(inputValue)}
-          styles={StudentsSelect}
-          components={{
-            IndicatorSeparator: () => null,
-          }}
-          placeholder="Buscar aluno"
-        />
+        <NameSelect name="student" loadOptions={loadStudents} />
         <FlexLine>
           <FlexColumn>
             <strong>PLANO</strong>
-            <Select
-              name="plan"
-              options={plans}
-              getOptionValue={option => option.id}
-              getOptionLabel={option => option.title}
-              onChange={inputValue => setSelectPlan(inputValue)}
-              components={{
-                IndicatorSeparator: () => null,
-              }}
-              styles={DefaultSelect}
-              placeholder="Escolher plano"
-            />
+            <PlanSelect name="plan" options={plans} setChange={setSelectPlan} />
           </FlexColumn>
           <FlexColumn>
             <strong>DATA DE INÍCIO</strong>
-            <DatePicker
+            <DateInput
               name="start_date"
-              type="date"
               min={minDate}
-              value={startDate}
-              onChange={handleDate}
-              placeholder="Escolha um data"
+              setChange={e => setStartDate(e)}
             />
           </FlexColumn>
           <FlexColumn>
             <strong>DATA DE TÉRMINO</strong>
-            <InputContent
+            <InputContainer
               name="end_date"
               type="text"
               disabled
@@ -186,7 +164,7 @@ export default function RegistrationRegister() {
           </FlexColumn>
           <FlexColumn>
             <strong>VALOR FINAL</strong>
-            <InputContent
+            <InputContainer
               name="fullPrice"
               type="text"
               disabled
@@ -194,7 +172,15 @@ export default function RegistrationRegister() {
             />
           </FlexColumn>
         </FlexLine>
-      </Content>
+      </FormContainer>
     </>
   );
 }
+
+EnrollmentEdit.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      id: PropTypes.string,
+    }),
+  }).isRequired,
+};

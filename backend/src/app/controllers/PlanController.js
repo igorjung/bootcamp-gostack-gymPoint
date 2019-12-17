@@ -26,7 +26,7 @@ class PlanController {
       });
 
       if (!plan) {
-        return res.status(404).json({ error: 'There are no plans yet.' });
+        return res.status(404).json({ error: 'Não planos no momento.' });
       }
 
       return res.json(plan);
@@ -50,13 +50,15 @@ class PlanController {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
     const plan = await Plan.findByPk(id);
 
     if (!plan) {
-      return res.status(404).json({ error: 'Plan not found' });
+      return res.status(404).json({ error: 'O plano selecionado não existe.' });
     }
 
     return res.json(plan);
@@ -70,7 +72,9 @@ class PlanController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
     const { title } = req.body;
 
@@ -79,7 +83,9 @@ class PlanController {
     });
 
     if (plan) {
-      return res.status(400).json({ error: 'Plan already exists. ' });
+      return res
+        .status(400)
+        .json({ error: 'Esse título já pertence a um plano existente. ' });
     }
 
     const { id, duration, price } = await Plan.create(req.body);
@@ -95,7 +101,9 @@ class PlanController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
     const { id } = req.params;
@@ -103,7 +111,9 @@ class PlanController {
     const plan = await Plan.findByPk(id);
 
     if (!plan) {
-      return res.status(404).json({ error: 'Plan does not exists. ' });
+      return res
+        .status(404)
+        .json({ error: 'O plano selecionado não existe. ' });
     }
 
     const { title } = req.body;
@@ -112,7 +122,9 @@ class PlanController {
       if (title !== plan.title) {
         const titleExists = await Plan.findOne({ where: { title } });
         if (titleExists) {
-          return res.status(400).json({ error: 'Plan already exists. ' });
+          return res
+            .status(400)
+            .json({ error: 'Esse título já pertence a um plano existente. ' });
         }
       }
     }
@@ -128,7 +140,7 @@ class PlanController {
     const plan = await Plan.findByPk(id);
 
     if (!plan) {
-      return res.status(404).json({ error: 'Plan not found.' });
+      return res.status(404).json({ error: 'O plano selecionado não existe.' });
     }
 
     await plan.destroy();

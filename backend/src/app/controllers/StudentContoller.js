@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 import Student from '../models/Student';
-import Registration from '../models/Registration';
+import Enrollment from '../models/Enrollment';
 
 class StudentController {
   async index(req, res) {
@@ -14,7 +14,9 @@ class StudentController {
         });
 
         if (!students) {
-          return res.status(404).json({ error: 'There are not students yet' });
+          return res
+            .status(404)
+            .json({ error: 'Não há estudantes cadastrados no momento.' });
         }
 
         return res.json(students);
@@ -27,7 +29,9 @@ class StudentController {
       });
 
       if (!students) {
-        return res.status(404).json({ error: 'There are not students yet' });
+        return res
+          .status(404)
+          .json({ error: 'Não há estudantes cadastrados no momento.' });
       }
 
       return res.json(students);
@@ -40,7 +44,7 @@ class StudentController {
     });
 
     if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
+      return res.status(404).json({ error: 'Aluno não encontrado.' });
     }
 
     return res.json(student);
@@ -50,13 +54,15 @@ class StudentController {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
     const student = await Student.findByPk(id);
 
     if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
+      return res.status(404).json({ error: 'O aluno selecionado não existe.' });
     }
 
     return res.json(student);
@@ -74,7 +80,9 @@ class StudentController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inseridos não são valídos.' });
     }
 
     const student = await Student.findOne({
@@ -84,7 +92,9 @@ class StudentController {
     });
 
     if (student) {
-      return res.status(401).json({ error: 'Student already exists. ' });
+      return res
+        .status(401)
+        .json({ error: 'Esse email já pertence a um aluno cadastrado. ' });
     }
 
     const { id, name, email, age, height, weight } = await Student.create(
@@ -104,7 +114,9 @@ class StudentController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Os dados inserid.os não são valídos.' });
     }
 
     const { id } = req.params;
@@ -112,7 +124,9 @@ class StudentController {
     const student = await Student.findByPk(id);
 
     if (!student) {
-      return res.status(404).json({ error: 'Student does not exists. ' });
+      return res
+        .status(404)
+        .json({ error: 'O aluno selecionado não existe. ' });
     }
 
     const { email } = req.body;
@@ -122,7 +136,9 @@ class StudentController {
         const studentExists = await Student.findOne({ where: { email } });
 
         if (studentExists) {
-          return res.status(401).json({ error: 'Student already exists. ' });
+          return res
+            .status(401)
+            .json({ error: 'Esse email pertence a um aluno já cadastrado. ' });
         }
       }
     }
@@ -138,10 +154,10 @@ class StudentController {
     const student = await Student.findByPk(id);
 
     if (!student) {
-      return res.status(404).json({ error: 'Student does not exists' });
+      return res.status(404).json({ error: 'O aluno selecionado não existe.' });
     }
 
-    const registration = await Registration.findOne({
+    const registration = await Enrollment.findOne({
       where: { student_id: id },
     });
 

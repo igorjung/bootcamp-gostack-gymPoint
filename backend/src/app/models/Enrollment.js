@@ -1,7 +1,7 @@
 import Sequelize, { Model } from 'sequelize';
 import { isBefore, isAfter } from 'date-fns';
 
-class Registration extends Model {
+class Enrollment extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -37,4 +37,4 @@ class Registration extends Model {
   }
 }
 
-export default Registration;
+export default Enrollment;

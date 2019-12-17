@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-
 import {
   MdRefresh,
   MdClose,
   MdKeyboardArrowLeft,
   MdKeyboardArrowRight,
 } from 'react-icons/md';
-
 import * as Yup from 'yup';
 import { Input } from '@rocketseat/unform';
-import api from '~/services/api';
 
+import api from '~/services/api';
 import {
   Pagination,
   PaginationButton,
@@ -69,12 +67,10 @@ export default function Help_Orders() {
       setVisible(0);
 
       toast.success('A resposta foi enviada.');
-    } catch {
+    } catch (e) {
       setLoading(false);
 
-      toast.error(
-        'Não foi possível enviar a resposta, tente novamente mais tarde.'
-      );
+      toast.error(`${e.response.data.error}`);
     }
   }
 

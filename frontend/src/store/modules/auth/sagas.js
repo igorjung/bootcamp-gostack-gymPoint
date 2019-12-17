@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 
 import history from '~/services/history';
 import api from '~/services/api';
-
 import { signInSuccess, signInFailure } from './actions';
 
 export function* signIn({ payload }) {

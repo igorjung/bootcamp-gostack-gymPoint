@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { MdKeyboardArrowLeft, MdCheck } from 'react-icons/md';
-
 import { Input } from '@rocketseat/unform';
 import * as Yup from 'yup';
+
 import FormContent from '~/styles/form';
 import history from '~/services/history';
 import api from '~/services/api';
-
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
 import { HeightMask, WeightMask } from '~/components/MaskInput';
 
@@ -17,40 +16,37 @@ const Schema = Yup.object().shape({
   email: Yup.string()
     .email('Insira um e-mail válido')
     .required('O e-mail é obrigatório'),
-  age: Yup.string().required('A idade é obrigatória'),
+  age: Yup.number()
+    .integer()
+    .typeError('A idade é obrigatória')
+    .required('A idade é obrigatória'),
+  weight: Yup.number()
+    .typeError('O peso é obrigatório')
+    .required('O peso é obrigatório'),
+  height: Yup.number()
+    .typeError('A altura é obrigatŕoia')
+    .required('A altura é obrigatŕoia'),
 });
 
 export default function StudentRegister() {
   const [loading, setLoading] = useState(false);
-  const [weight, setWeight] = useState(60);
-  const [height, setHeight] = useState(1.5);
 
   async function handleSubmit(data) {
     setLoading(true);
 
     try {
-      await api.post('students', { ...data, height, weight });
+      await api.post('students', { ...data });
 
       setLoading(false);
 
       toast.success('O aluno foi cadastrado com sucesso.');
 
       history.push('/students');
-    } catch {
+    } catch (e) {
       setLoading(false);
 
-      toast.error(
-        'Não foi possível realizar o cadastro, confira os dados do aluno'
-      );
+      toast.error(`${e.response.data.error}`);
     }
-  }
-
-  function handleWeight(e) {
-    setWeight(e.target.value.replace('kg', ''));
-  }
-
-  function handleHeight(e) {
-    setHeight(e.target.value.replace('m', ''));
   }
 
   return (
@@ -86,23 +82,15 @@ export default function StudentRegister() {
         <div>
           <div>
             <strong>IDADE</strong>
-            <Input name="age" type="number" placeholder="18" />
+            <Input name="age" type="number" />
           </div>
           <div>
             <strong>PESO(em kg)</strong>
-            <WeightMask
-              name="weight"
-              onChange={handleWeight}
-              placeholder={`${weight}kg`}
-            />
+            <WeightMask name="weight" />
           </div>
           <div>
             <strong>ALTURA</strong>
-            <HeightMask
-              name="height"
-              onChange={handleHeight}
-              placeholder={`${height}m`}
-            />
+            <HeightMask name="height" />
           </div>
         </div>
       </FormContent>

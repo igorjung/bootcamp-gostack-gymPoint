@@ -8,17 +8,15 @@ import {
   MdKeyboardArrowRight,
 } from 'react-icons/md';
 import { toast } from 'react-toastify';
-
 import { Input } from '@rocketseat/unform';
-import api from '~/services/api';
 
+import api from '~/services/api';
 import Table from '~/styles/table';
 import {
   Pagination,
   PaginationButton,
   PageIndicator,
 } from '~/styles/pagination';
-
 import {
   Container,
   InputContent,
@@ -51,19 +49,31 @@ export default function Students() {
   }, [page]);
 
   async function handleDelete(id) {
-    if (window.confirm('Você realmente deseja deletar esse usuário?')) {
-      await api.delete(`students/${id}`);
+    try {
+      if (window.confirm('Você realmente deseja deletar esse usuário?')) {
+        await api.delete(`students/${id}`);
 
-      loadStudents();
+        loadStudents();
 
-      toast.success('Usuário deletado com sucesso.');
+        toast.success('Usuário deletado com sucesso.');
+      }
+    } catch (e) {
+      toast.error(`${e.response.data.error}`);
     }
   }
 
   async function handleSubmit({ name }) {
-    const { data } = await api.get(`students?name=${name}`);
+    try {
+      const { data } = await api.get(`students?name=${name}`);
 
-    setStudents(data);
+      if (!data.length) {
+        toast.error('Usuário não encontrado');
+        return;
+      }
+      setStudents(data);
+    } catch (e) {
+      toast.error(`${e.response.data.error}`);
+    }
   }
 
   function handlePreview() {

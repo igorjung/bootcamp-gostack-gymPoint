@@ -10,9 +10,9 @@ import StudentEdit from '~/pages/Students/StudentEdit';
 import Plans from '~/pages/Plans';
 import PlanRegister from '~/pages/Plans/PlanRegister';
 import PlanEdit from '~/pages/Plans/PlanEdit';
-import Registration from '~/pages/Registration';
-import RegistrationRegister from '~/pages/Registration/RegistrationRegister';
-import RegistrationEdit from '~/pages/Registration/RegistrationEdit';
+import Enrollments from '~/pages/Enrollments';
+import EnrollmentRegister from '~/pages/Enrollments/EnrollmentRegister';
+import EnrollmentEdit from '~/pages/Enrollments/EnrollmentEdit';
 import Help_orders from '~/pages/Help_Orders';
 
 export default function Routes() {
@@ -28,13 +28,13 @@ export default function Routes() {
       <Route path="/plans/register" component={PlanRegister} isPrivate />
       <Route path="/plans/:id" component={PlanEdit} isPrivate />
 
-      <Route path="/registrations" exact component={Registration} isPrivate />
+      <Route path="/enrollments" exact component={Enrollments} isPrivate />
       <Route
-        path="/registrations/register"
-        component={RegistrationRegister}
+        path="/enrollments/register"
+        component={EnrollmentRegister}
         isPrivate
       />
-      <Route path="/registrations/:id" component={RegistrationEdit} isPrivate />
+      <Route path="/enrollments/:id" component={EnrollmentEdit} isPrivate />
 
       <Route path="/helporders" exact component={Help_orders} isPrivate />
     </Switch>

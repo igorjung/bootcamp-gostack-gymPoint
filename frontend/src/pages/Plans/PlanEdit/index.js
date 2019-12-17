@@ -2,23 +2,26 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { MdKeyboardArrowLeft, MdCheck } from 'react-icons/md';
-
 import PropTypes from 'prop-types';
-
 import { Input } from '@rocketseat/unform';
 import * as Yup from 'yup';
+
 import FormContent from '~/styles/form';
 import history from '~/services/history';
 import api from '~/services/api';
-
 import { Container, LinkBack, ButtonSave } from '~/styles/header';
 import { CurrencyMask } from '~/components/MaskInput';
-
 import format from '~/util/format';
 
 const Schema = Yup.object().shape({
   title: Yup.string().required('O Título é obrigatório'),
-  duration: Yup.string().required('A duração é obrigatória'),
+  duration: Yup.number()
+    .integer()
+    .typeError('A duração é obrigatória')
+    .required('A duração é obrigatória'),
+  price: Yup.string()
+    .typeError('O preço é obrigatório')
+    .required('O preço é obrigatório'),
 });
 
 export default function PlanEdit({ match }) {
@@ -30,45 +33,45 @@ export default function PlanEdit({ match }) {
     async function loadPlan() {
       const { id } = match.params;
 
-      const response = await api.get(`plans/${id}`);
+      const { data } = await api.get(`plans/${id}`);
 
       setPlan({
-        ...response.data,
+        ...data,
+        price: data.price.toString().replace('.', ','),
         fullPrice: 'R$0,00',
       });
 
-      setPrice(response.data.price);
+      setPrice(data.price);
     }
 
     loadPlan();
   }, [match.params]);
 
-  async function handleSubmit(data) {
+  async function handleSubmit(formData) {
     try {
+      const data = {
+        ...formData,
+        price: formData.price.replace(',', '.'),
+      };
+
       setLoading(true);
 
-      await api.put(`plans/${plan.id}`, { ...data, price });
+      await api.put(`plans/${plan.id}`, { ...data });
 
       setLoading(false);
 
       history.push('/plans');
 
       toast.success('O plano foi atualizado com sucesso.');
-    } catch {
+    } catch (e) {
       setLoading(false);
 
-      toast.error(
-        'Não foi possível realizar a atualização, confira os dados do plano'
-      );
+      toast.error(`${e.response.data.error}`);
     }
   }
 
   function handleChangeDuration(e) {
     setPlan({ ...plan, duration: e.target.value });
-  }
-
-  function handleChangePrice(e) {
-    setPrice(e.target.value.replace('R$', '').slice(0, -3));
   }
 
   const fullPrice = useMemo(() => {
@@ -124,7 +127,7 @@ export default function PlanEdit({ match }) {
             <CurrencyMask
               name="price"
               defaultValue={price}
-              onChange={handleChangePrice}
+              setChange={e => setPrice(e)}
             />
           </div>
           <div>

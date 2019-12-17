@@ -1,12 +1,19 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import PropTypes from 'prop-types';
 import { signOut } from '~/store/modules/auth/actions';
 
 import logo from '~/assets/logo02.png';
-import { Container, LogoContainer, Image, Text, LogoutButton } from './styles';
+import {
+  Container,
+  EmptyStyle,
+  LogoContainer,
+  Image,
+  Text,
+  LogoutButton,
+} from './styles';
 
 export default function Header({ children }) {
   const dispatch = useDispatch();
@@ -23,7 +30,7 @@ export default function Header({ children }) {
         <Text>GYMPOINT</Text>
       </LogoContainer>
       <LogoutButton onPress={handleSignOut}>
-        <Icon name="close" size={18} color="#fb6f93" />
+        <Icon name="logout-variant" size={20} color="#fb6f93" />
       </LogoutButton>
     </Container>
   );
@@ -34,5 +41,5 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  children: <></>,
+  children: <EmptyStyle />,
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { ActivityIndicator, Alert } from 'react-native';
 import { parseISO, formatRelative } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import { useSelector } from 'react-redux';
@@ -12,26 +12,39 @@ import { Container, SubmitButton, List, Item, Number, Time } from './styles';
 
 function Checkins() {
   const id = useSelector(state => state.auth.profile.id);
+  const [loading, setLoading] = useState(false);
   const [checkins, setCheckins] = useState([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(0);
 
   async function loadCheckins() {
-    const response = await api.get(`students/${id}/checkins`);
+    try {
+      setLoading(true);
+      const response = await api.get(`students/${id}/checkins?page=${page}`);
 
-    const data = response.data.map(checkin => ({
-      ...checkin,
-      date: formatRelative(parseISO(checkin.createdAt), new Date(), {
-        locale: pt,
-        addSuffix: true,
-      }),
-    }));
+      const data = response.data.map(checkin => ({
+        ...checkin,
+        date: formatRelative(parseISO(checkin.createdAt), new Date(), {
+          locale: pt,
+          addSuffix: true,
+        }),
+      }));
 
-    setCheckins(data);
+      console.tron.log(data);
+
+      setCheckins({ ...checkins, data });
+
+      setLoading(false);
+    } catch {
+      setLoading(false);
+      setLastPage(0);
+    }
   }
 
   useEffect(() => {
     loadCheckins();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, page]);
 
   async function handleSubmit() {
     try {
@@ -51,15 +64,25 @@ function Checkins() {
     }
   }
 
+  function handlePagination() {
+    if (!lastPage) {
+      setPage(page + 1);
+    }
+  }
+
   return (
     <>
       <Header />
       <Container>
         <SubmitButton onPress={handleSubmit}>Novo check-in</SubmitButton>
-        {checkins && (
+        {loading ? (
+          <ActivityIndicator size={30} color="#e25965" marginTop={50} />
+        ) : (
           <List
             data={checkins}
             keyExtractor={item => String(item.id)}
+            onEndReached={handlePagination}
+            onEndReachedThreshold={0.1}
             renderItem={({ item }) => (
               <Item>
                 <Number>{`Check-in #${item.id}`}</Number>
