@@ -30,6 +30,7 @@ const Schema = Yup.object().shape({
 
 export default function StudentRegister() {
   const [loading, setLoading] = useState(false);
+  const [age, setAge] = useState('');
 
   async function handleSubmit(data) {
     setLoading(true);
@@ -44,9 +45,29 @@ export default function StudentRegister() {
       history.push('/students');
     } catch (e) {
       setLoading(false);
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
 
       toast.error(`${e.response.data.error}`);
     }
+  }
+
+  function handleChangeAge(e) {
+    if (e.target.value === '') {
+      setAge('');
+      return;
+    }
+    if (e.target.value <= 1) {
+      setAge(1);
+      return;
+    }
+    if (e.target.value >= 120) {
+      setAge(120);
+      return;
+    }
+    setAge(e.target.value);
   }
 
   return (
@@ -82,7 +103,12 @@ export default function StudentRegister() {
         <div>
           <div>
             <strong>IDADE</strong>
-            <Input name="age" type="number" />
+            <Input
+              name="age"
+              type="number"
+              value={age}
+              onChange={handleChangeAge}
+            />
           </div>
           <div>
             <strong>PESO(em kg)</strong>

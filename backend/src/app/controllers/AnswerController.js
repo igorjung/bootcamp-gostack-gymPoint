@@ -3,7 +3,8 @@ import * as Yup from 'yup';
 import Help from '../models/Help';
 import Student from '../models/Student';
 
-import Mail from '../../lib/Mail';
+import Queue from '../../lib/Queue';
+import answerMail from '../jobs/answerMail';
 
 class HelpController {
   async store(req, res) {
@@ -35,15 +36,11 @@ class HelpController {
 
     await help.update(req.body);
 
-    await Mail.sendMail({
-      to: `${name} <${email}>`,
-      subject: 'Questão Respondida!',
-      template: 'question',
-      context: {
-        name,
-        question: question.question,
-        answer,
-      },
+    await Queue.add(answerMail.key, {
+      answer,
+      name,
+      email,
+      question,
     });
 
     return res.json(help);

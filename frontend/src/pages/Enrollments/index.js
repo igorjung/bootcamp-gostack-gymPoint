@@ -78,6 +78,10 @@ export default function Enrollments() {
         toast.success('Matrícula deletada com sucesso.');
       }
     } catch (e) {
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
       toast.error(`${e.response.data.error}`);
     }
   }

@@ -61,7 +61,11 @@ export default function Plans() {
 
   async function handleDelete(id) {
     try {
-      if (window.confirm('Você realmente deseja deletar esse plano?')) {
+      if (
+        window.confirm(
+          'Você realmente deseja deletar esse plano? Ao deletar o plano, as matrículas relacionadas a ele serão deletadas juntas.'
+        )
+      ) {
         await api.delete(`plans/${id}`);
 
         loadPlans();
@@ -69,6 +73,10 @@ export default function Plans() {
         toast.success('Plano deletado com sucesso.');
       }
     } catch (e) {
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
       toast.error(`${e.response.data.error}`);
     }
   }

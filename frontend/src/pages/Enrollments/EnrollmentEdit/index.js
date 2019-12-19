@@ -26,11 +26,22 @@ export default function EnrollmentEdit({ match }) {
   const { id } = match.params;
   useEffect(() => {
     async function loadData() {
-      const { data } = await api.get(`enrollments/${id}`);
+      try {
+        const { data } = await api.get(`enrollments/${id}`);
 
-      const start_date = parseISO(data.start_date);
+        const start_date = parseISO(data.start_date);
 
-      setEnrollments({ ...data, start_date });
+        setEnrollments({ ...data, start_date });
+      } catch (e) {
+        if (e.response.data.error === undefined) {
+          toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+          history.push('/enrollments');
+          return;
+        }
+
+        toast.error(e.response.data.error);
+        history.push('/enrollments');
+      }
     }
 
     async function loadPlans() {
@@ -103,6 +114,11 @@ export default function EnrollmentEdit({ match }) {
       toast.success('A matrícula foi editada com sucesso.');
     } catch (e) {
       setLoading(false);
+
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
 
       toast.error(`${e.response.data.error}`);
     }

@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 
 import Plan from '../models/Plan';
+import Enrollment from '../models/Enrollment';
 
 class PlanController {
   async index(req, res) {
@@ -142,6 +143,10 @@ class PlanController {
     if (!plan) {
       return res.status(404).json({ error: 'O plano selecionado não existe.' });
     }
+
+    await Enrollment.destroy({
+      where: { plan_id: id },
+    });
 
     await plan.destroy();
 

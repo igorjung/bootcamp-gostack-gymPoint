@@ -95,9 +95,10 @@ export default function EnrollmentRegister() {
       const data = {
         plan_id,
         start_date,
+        student_id,
       };
 
-      await api.post(`enrollments/${student_id}`, data);
+      await api.post(`enrollments`, data);
 
       setLoading(false);
 
@@ -106,6 +107,11 @@ export default function EnrollmentRegister() {
       toast.success('A matrícula foi cadastrada com sucesso.');
     } catch (e) {
       setLoading(false);
+
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
 
       toast.error(`${e.response.data.error}`);
     }

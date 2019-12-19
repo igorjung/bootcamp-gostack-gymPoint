@@ -5,7 +5,8 @@ import Enrollment from '../models/Enrollment';
 import Plan from '../models/Plan';
 import Student from '../models/Student';
 
-import Mail from '../../lib/Mail';
+import Queue from '../../lib/Queue';
+import enrollmentMail from '../jobs/enrollmentMail';
 
 class EnrollmentController {
   async index(req, res) {
@@ -138,17 +139,11 @@ class EnrollmentController {
       end_date,
     });
 
-    await Mail.sendMail({
-      to: `${student.name} <${student.email}>`,
-      subject: 'Matricula cadastrada!',
-      template: 'enrollments',
-      context: {
-        student: student.name,
-        plan: plan.title,
-        price: plan.price,
-        startDate: startDateFormated,
-        endDate: endDateFormated,
-      },
+    await Queue.add(enrollmentMail.key, {
+      student,
+      plan,
+      startDateFormated,
+      endDateFormated,
     });
 
     return res.json(enrollments);

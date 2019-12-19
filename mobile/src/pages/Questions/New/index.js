@@ -42,12 +42,12 @@ export default function New({ navigation }) {
         <SubmitInput
           autoFocus
           multiline
-          placeholder="Inclua seu pedido de auxílio"
+          placeholder="Inclua sua pergunta"
           onSubmitEditing={handleSubmit}
           value={question}
           onChangeText={setQuestion}
         />
-        <SubmitButton onPress={handleSubmit}>Enviar pedido</SubmitButton>
+        <SubmitButton onPress={handleSubmit}>Enviar pergunta</SubmitButton>
       </Container>
     </>
   );

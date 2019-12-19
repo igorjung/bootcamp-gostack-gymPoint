@@ -8,19 +8,28 @@ import { withNavigation } from 'react-navigation';
 
 import api from '~/services/api';
 import Header from '~/components/Header';
-import { Container, SubmitButton, List, Item, Number, Time } from './styles';
+import {
+  Container,
+  SubmitButton,
+  EmptyText,
+  List,
+  Item,
+  Number,
+  Time,
+} from './styles';
 
 function Checkins() {
   const id = useSelector(state => state.auth.profile.id);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [checkins, setCheckins] = useState([]);
   const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(0);
+  const [lastPage, setLastPage] = useState(false);
 
   async function loadCheckins() {
     try {
       setLoading(true);
-      const response = await api.get(`students/${id}/checkins?page=${page}`);
+      const response = await api.get(`students/${id}/checkins?page=1`);
 
       const data = response.data.map(checkin => ({
         ...checkin,
@@ -30,21 +39,82 @@ function Checkins() {
         }),
       }));
 
-      console.tron.log(data);
+      if (!data.length) {
+        setLoading(false);
+        setLastPage(true);
+        return;
+      }
 
-      setCheckins({ ...checkins, data });
-
+      setCheckins(data);
       setLoading(false);
     } catch {
       setLoading(false);
-      setLastPage(0);
+      setLastPage(true);
     }
   }
 
   useEffect(() => {
     loadCheckins();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, page]);
+  }, []);
+
+  async function loadMore() {
+    try {
+      const newPage = page + 1;
+      if (!lastPage) {
+        const response = await api.get(
+          `students/${id}/checkins?page=${newPage}`
+        );
+
+        const data = response.data.map(checkin => ({
+          ...checkin,
+          date: formatRelative(parseISO(checkin.createdAt), new Date(), {
+            locale: pt,
+            addSuffix: true,
+          }),
+        }));
+
+        if (!data.length) {
+          setLastPage(true);
+          return;
+        }
+
+        setPage(newPage);
+        setCheckins([...checkins, ...data]);
+      }
+    } catch {
+      setLastPage(true);
+    }
+  }
+
+  async function handleRefresh() {
+    try {
+      setPage(1);
+      setLastPage(false);
+      setRefreshing(true);
+      const response = await api.get(`students/${id}/checkins?page=1`);
+
+      const data = response.data.map(checkin => ({
+        ...checkin,
+        date: formatRelative(parseISO(checkin.createdAt), new Date(), {
+          locale: pt,
+          addSuffix: true,
+        }),
+      }));
+
+      if (!data.length) {
+        setRefreshing(false);
+        setLastPage(true);
+        return;
+      }
+
+      setCheckins(data);
+      setRefreshing(false);
+    } catch {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
 
   async function handleSubmit() {
     try {
@@ -64,12 +134,6 @@ function Checkins() {
     }
   }
 
-  function handlePagination() {
-    if (!lastPage) {
-      setPage(page + 1);
-    }
-  }
-
   return (
     <>
       <Header />
@@ -78,18 +142,29 @@ function Checkins() {
         {loading ? (
           <ActivityIndicator size={30} color="#e25965" marginTop={50} />
         ) : (
-          <List
-            data={checkins}
-            keyExtractor={item => String(item.id)}
-            onEndReached={handlePagination}
-            onEndReachedThreshold={0.1}
-            renderItem={({ item }) => (
-              <Item>
-                <Number>{`Check-in #${item.id}`}</Number>
-                <Time>{item.date}</Time>
-              </Item>
+          <>
+            {checkins.length ? (
+              <List
+                data={checkins}
+                keyExtractor={item => String(item.id)}
+                onEndReachedThreshold={0.2}
+                onEndReached={loadMore}
+                onRefresh={handleRefresh}
+                refreshing={refreshing}
+                renderItem={({ item }) => (
+                  <Item>
+                    <Number>{`Check-in #${item.id}`}</Number>
+                    <Time>{item.date}</Time>
+                  </Item>
+                )}
+              />
+            ) : (
+              <>
+                <EmptyText>Faça seu primeiro check-in.</EmptyText>
+                <Icon name="fitness-center" color="#333" size={40} />
+              </>
             )}
-          />
+          </>
         )}
       </Container>
     </>

@@ -22,8 +22,15 @@ const FormContent = styled(Form)`
     border: 1px solid #ddd;
     border-radius: 4px;
     height: 40px;
-    padding: 15px;
+    padding: 0 15px;
     width: 100%;
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    &[type='number'] {
+      -moz-appearance: textfield;
+    }
   }
 
   div {

@@ -45,11 +45,28 @@ export default function PlanRegister() {
     } catch (e) {
       setLoading(false);
 
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
+
       toast.error(`${e.response.data.error}`);
     }
   }
 
   function handleChangeDuration(e) {
+    if (e.target.value === '') {
+      setDuration('');
+      return;
+    }
+    if (e.target.value <= 1) {
+      setDuration(1);
+      return;
+    }
+    if (e.target.value >= 300) {
+      setDuration(300);
+      return;
+    }
     setDuration(e.target.value);
   }
 
@@ -96,16 +113,11 @@ export default function PlanRegister() {
               min={1}
               value={duration}
               onChange={handleChangeDuration}
-              placeholder="0"
             />
           </div>
           <div>
             <strong>PREÇO MENSAL</strong>
-            <CurrencyMask
-              name="price"
-              setChange={e => setPrice(e)}
-              placeholder="R$0,00"
-            />
+            <CurrencyMask name="price" setChange={e => setPrice(e)} />
           </div>
           <div>
             <strong>PREÇO TOTAL</strong>

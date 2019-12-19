@@ -33,14 +33,26 @@ const Schema = Yup.object().shape({
 export default function StudentEdit({ match }) {
   const [loading, setLoading] = useState(false);
   const [student, setStudent] = useState([]);
+  const [age, setAge] = useState('');
 
   useEffect(() => {
     async function loadStudent() {
-      const { id } = match.params;
+      try {
+        const { id } = match.params;
 
-      const response = await api.get(`students/${id}`);
+        const response = await api.get(`students/${id}`);
 
-      setStudent(response.data);
+        setAge(response.data.age);
+        setStudent(response.data);
+      } catch (e) {
+        if (e.response.data.error === undefined) {
+          toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+          history.push('/students');
+          return;
+        }
+        toast.error(e.response.data.error);
+        history.push('/students');
+      }
     }
 
     loadStudent();
@@ -60,8 +72,29 @@ export default function StudentEdit({ match }) {
     } catch (e) {
       setLoading(false);
 
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
+
       toast.error(`${e.response.data.error}`);
     }
+  }
+
+  function handleChangeAge(e) {
+    if (e.target.value === '') {
+      setAge('');
+      return;
+    }
+    if (e.target.value <= 1) {
+      setAge(1);
+      return;
+    }
+    if (e.target.value >= 120) {
+      setAge(120);
+      return;
+    }
+    setAge(e.target.value);
   }
 
   return (
@@ -102,7 +135,12 @@ export default function StudentEdit({ match }) {
         <div>
           <div>
             <strong>IDADE</strong>
-            <Input name="age" type="number" />
+            <Input
+              name="age"
+              type="number"
+              value={age}
+              onChange={handleChangeAge}
+            />
           </div>
           <div>
             <strong>PESO(em kg)</strong>

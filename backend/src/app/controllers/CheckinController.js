@@ -19,8 +19,8 @@ class CheckinController {
       where: {
         student_id,
       },
-      limit: 9,
-      offset: (page - 1) * 9,
+      limit: 8,
+      offset: (page - 1) * 8,
     });
 
     if (!studentCheckins) {

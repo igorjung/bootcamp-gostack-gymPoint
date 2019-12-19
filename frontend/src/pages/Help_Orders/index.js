@@ -49,11 +49,19 @@ export default function Help_Orders() {
   }, [visible, page]);
 
   async function loadQuestion(id) {
-    const response = await api.get(`help-orders/${id}`);
+    try {
+      const response = await api.get(`help-orders/${id}`);
 
-    setQuestion(response.data);
+      setQuestion(response.data);
 
-    setVisible(1);
+      setVisible(1);
+    } catch (e) {
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
+      toast.error(e.response.data.error);
+    }
   }
 
   async function handleSubmit(data) {
@@ -69,6 +77,11 @@ export default function Help_Orders() {
       toast.success('A resposta foi enviada.');
     } catch (e) {
       setLoading(false);
+
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
 
       toast.error(`${e.response.data.error}`);
     }
@@ -111,7 +124,12 @@ export default function Help_Orders() {
         <strong>PERGUNTA DO ALUNO</strong>
         <p>{question.question || ''}</p>
         <strong>SUA RESPOSTA</strong>
-        <Input multiline name="answer" placeholder="examplo@email.com" />
+        <Input
+          multiline
+          maxLength={255}
+          name="answer"
+          placeholder="examplo@email.com"
+        />
         <button type="submit">
           {loading ? 'Carregando...' : 'Responder aluno'}
         </button>

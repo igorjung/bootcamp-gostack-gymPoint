@@ -31,17 +31,27 @@ export default function PlanEdit({ match }) {
 
   useEffect(() => {
     async function loadPlan() {
-      const { id } = match.params;
+      try {
+        const { id } = match.params;
 
-      const { data } = await api.get(`plans/${id}`);
+        const { data } = await api.get(`plans/${id}`);
 
-      setPlan({
-        ...data,
-        price: data.price.toString().replace('.', ','),
-        fullPrice: 'R$0,00',
-      });
+        setPlan({
+          ...data,
+          price: data.price.toString().replace('.', ','),
+          fullPrice: 'R$0,00',
+        });
 
-      setPrice(data.price);
+        setPrice(data.price);
+      } catch (e) {
+        if (e.response.data.error === 'undefined') {
+          toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+          history.push('/plans');
+          return;
+        }
+        toast.error(e.response.data.error);
+        history.push('/plans');
+      }
     }
 
     loadPlan();
@@ -66,11 +76,28 @@ export default function PlanEdit({ match }) {
     } catch (e) {
       setLoading(false);
 
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
+
       toast.error(`${e.response.data.error}`);
     }
   }
 
   function handleChangeDuration(e) {
+    if (e.target.value === '') {
+      setPlan({ ...plan, duration: '' });
+      return;
+    }
+    if (e.target.value <= 1) {
+      setPlan({ ...plan, duration: 1 });
+      return;
+    }
+    if (e.target.value >= 300) {
+      setPlan({ ...plan, duration: 300 });
+      return;
+    }
     setPlan({ ...plan, duration: e.target.value });
   }
 

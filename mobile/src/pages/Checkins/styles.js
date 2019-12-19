@@ -14,10 +14,19 @@ export const SubmitButton = styled(Button)`
   margin-top: 15px;
 `;
 
+export const EmptyText = styled.Text`
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+`;
+
 export const List = styled.FlatList.attrs({
   showsVerticalScrollIndicator: false,
-  contentContainerStyle: { marginTop: 15 },
+  contentContainerStyle: { marginTop: 15, paddingBottom: 15 },
 })`
+  margin-top: 5px;
   width: 100%;
 `;
 

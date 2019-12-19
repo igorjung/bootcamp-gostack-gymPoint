@@ -50,7 +50,11 @@ export default function Students() {
 
   async function handleDelete(id) {
     try {
-      if (window.confirm('Você realmente deseja deletar esse usuário?')) {
+      if (
+        window.confirm(
+          'Você realmente deseja deletar esse aluno? Ao deletar um aluno, as matrículas relacionadas a ele serão deletadas juntas.'
+        )
+      ) {
         await api.delete(`students/${id}`);
 
         loadStudents();
@@ -58,6 +62,10 @@ export default function Students() {
         toast.success('Usuário deletado com sucesso.');
       }
     } catch (e) {
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
       toast.error(`${e.response.data.error}`);
     }
   }
@@ -72,6 +80,10 @@ export default function Students() {
       }
       setStudents(data);
     } catch (e) {
+      if (e.response.data.error === undefined) {
+        toast.error(`Um erro aconteceu, tente novamente mais tarde.`);
+        return;
+      }
       toast.error(`${e.response.data.error}`);
     }
   }

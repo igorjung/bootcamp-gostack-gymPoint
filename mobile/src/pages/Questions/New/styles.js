@@ -16,6 +16,7 @@ export const SubmitButton = styled(Button)`
 
 export const SubmitInput = styled.TextInput.attrs({
   textAlignVertical: 'top',
+  maxLength: 255,
 })`
   margin-top: 10px;
   width: 100%;
