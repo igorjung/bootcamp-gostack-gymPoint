@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   MdAdd,
@@ -16,42 +17,53 @@ import {
   PageIndicator,
 } from '~/styles/pagination';
 import { Container, LinkRegister, RefreshContent } from '~/styles/header';
+import { signOut } from '~/store/modules/auth/actions';
 
 export default function Plans() {
   const [plans, setPlans] = useState([]);
   const [page, setPage] = useState(1);
   const [next, setNext] = useState(1);
 
+  const dispatch = useDispatch();
+
   async function loadPlans() {
-    const response = await api.get(`plans?page=${page}`);
+    try {
+      const response = await api.get(`plans?page=${page}`);
 
-    const { format } = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    });
+      const { format } = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      });
 
-    const data = response.data.map(plan => {
-      const priceFormatted = format(plan.price);
+      const data = response.data.map(plan => {
+        const priceFormatted = format(plan.price);
 
-      const durationFormatted =
-        plan.duration > 1 ? `${plan.duration} meses` : `${plan.duration} mês`;
+        const durationFormatted =
+          plan.duration > 1 ? `${plan.duration} meses` : `${plan.duration} mês`;
 
-      return {
-        ...plan,
-        priceFormatted,
-        durationFormatted,
-      };
-    });
+        return {
+          ...plan,
+          priceFormatted,
+          durationFormatted,
+        };
+      });
 
-    setPlans(data);
+      setPlans(data);
 
-    const nextPage = await api.get(`plans?page=${page + 1}`);
+      const nextPage = await api.get(`plans?page=${page + 1}`);
 
-    if (!nextPage.data.length) {
-      setNext(0);
-      return;
+      if (!nextPage.data.length) {
+        setNext(0);
+        return;
+      }
+      setNext(1);
+    } catch (e) {
+      if (e.response.data.error === 'Token invalid') {
+        dispatch(signOut());
+      } else {
+        toast.error(e.response.data.error);
+      }
     }
-    setNext(1);
   }
 
   useEffect(() => {

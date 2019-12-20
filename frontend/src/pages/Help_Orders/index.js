@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import {
   MdRefresh,
@@ -17,6 +18,7 @@ import {
 } from '~/styles/pagination';
 import { Container, RefreshContent } from '~/styles/header';
 import { Filter, AnswerContainer, Table } from './styles';
+import { signOut } from '~/store/modules/auth/actions';
 
 const Schema = Yup.object().shape({
   answer: Yup.string().required('A resposta é obrigatória'),
@@ -31,17 +33,27 @@ export default function Help_Orders() {
   const [next, setNext] = useState(1);
   const [answer, setAnswer] = useState('');
 
+  const dispatch = useDispatch();
+
   async function loadHelpOrders() {
-    const response = await api.get(`help-orders?page=${page}`);
-    setHelpOrders(response.data);
+    try {
+      const response = await api.get(`help-orders?page=${page}`);
+      setHelpOrders(response.data);
 
-    const nextPage = await api.get(`help-orders?page=${page + 1}`);
+      const nextPage = await api.get(`help-orders?page=${page + 1}`);
 
-    if (!nextPage.data.length) {
-      setNext(0);
-      return;
+      if (!nextPage.data.length) {
+        setNext(0);
+        return;
+      }
+      setNext(1);
+    } catch (e) {
+      if (e.response.data.error === 'Token invalid') {
+        dispatch(signOut());
+      } else {
+        toast.error(e.response.data.error);
+      }
     }
-    setNext(1);
   }
 
   useEffect(() => {

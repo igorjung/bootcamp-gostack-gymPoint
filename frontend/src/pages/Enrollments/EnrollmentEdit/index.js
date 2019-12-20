@@ -95,7 +95,7 @@ export default function EnrollmentEdit({ match }) {
         ? formData.student
         : enrollments.student;
 
-      const start_date = format(formData.start_date, 'MM/dd/yyyy');
+      const start_date = formData.start_date ? format(formData.start_date, 'MM/dd/yyyy') : format(enrollments.start_date, 'MM/dd/yyyy');
 
       setLoading(true);
 

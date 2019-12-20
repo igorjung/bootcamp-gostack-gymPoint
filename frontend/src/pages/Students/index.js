@@ -52,7 +52,7 @@ export default function Students() {
     try {
       if (
         window.confirm(
-          'Você realmente deseja deletar esse aluno? Ao deletar um aluno, as matrículas relacionadas a ele serão deletadas juntas.'
+          'Você realmente deseja deletar esse aluno? Ao deletar um aluno, a matrícula relacionada a ele sera deletada tambem.'
         )
       ) {
         await api.delete(`students/${id}`);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import {
@@ -19,48 +20,59 @@ import {
   PageIndicator,
 } from '~/styles/pagination';
 import { Container, LinkRegister, RefreshContent } from '~/styles/header';
+import { signOut } from '~/store/modules/auth/actions';
 
 export default function Enrollments() {
   const [enrollments, setEnrollments] = useState([]);
   const [page, setPage] = useState(1);
   const [next, setNext] = useState(1);
 
+  const dispatch = useDispatch();
+
   async function loadEnrollment() {
-    const response = await api.get(`enrollments?page=${page}`);
+    try {
+      const response = await api.get(`enrollments?page=${page}`);
 
-    const data = response.data.map(enrollment => {
-      const formatedStart = format(
-        parseISO(enrollment.start_date),
-        "d 'de' MMMM 'de' yyyy",
-        {
-          locale: pt,
-        }
-      );
+      const data = response.data.map(enrollment => {
+        const formatedStart = format(
+          parseISO(enrollment.start_date),
+          "d 'de' MMMM 'de' yyyy",
+          {
+            locale: pt,
+          }
+        );
 
-      const formatedEnd = format(
-        parseISO(enrollment.end_date),
-        "d 'de' MMMM 'de' yyyy",
-        {
-          locale: pt,
-        }
-      );
+        const formatedEnd = format(
+          parseISO(enrollment.end_date),
+          "d 'de' MMMM 'de' yyyy",
+          {
+            locale: pt,
+          }
+        );
 
-      return {
-        ...enrollment,
-        formatedEnd,
-        formatedStart,
-      };
-    });
+        return {
+          ...enrollment,
+          formatedEnd,
+          formatedStart,
+        };
+      });
 
-    setEnrollments(data);
+      setEnrollments(data);
 
-    const nextPage = await api.get(`enrollments?page=${page + 1}`);
+      const nextPage = await api.get(`enrollments?page=${page + 1}`);
 
-    if (!nextPage.data.length) {
-      setNext(0);
-      return;
+      if (!nextPage.data.length) {
+        setNext(0);
+        return;
+      }
+      setNext(1);
+    } catch (e) {
+      if (e.response.data.error === 'Token invalid') {
+        dispatch(signOut());
+      } else {
+        toast.error(e.response.data.error);
+      }
     }
-    setNext(1);
   }
 
   useEffect(() => {
@@ -71,7 +83,7 @@ export default function Enrollments() {
   async function handleDelete(id) {
     try {
       if (window.confirm('Você realmente deseja deletar essa matrícula?')) {
-        await api.delete(`registrations/${id}`);
+        await api.delete(`enrollments/${id}`);
 
         loadEnrollment();
 
