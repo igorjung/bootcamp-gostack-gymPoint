@@ -151,9 +151,9 @@ function Checkins() {
                 onEndReached={loadMore}
                 onRefresh={handleRefresh}
                 refreshing={refreshing}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                   <Item>
-                    <Number>{`Check-in #${item.id}`}</Number>
+                    <Number>{`Check-in #${index + 1}`}</Number>
                     <Time>{item.date}</Time>
                   </Item>
                 )}

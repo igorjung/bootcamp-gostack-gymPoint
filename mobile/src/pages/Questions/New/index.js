@@ -26,8 +26,8 @@ export default function New({ navigation }) {
       );
 
       navigation.navigate('Help_Orders');
-    } catch {
-      Alert.alert('Erro ao publicar a pergunta', 'Tente novamente mais tarde.');
+    } catch (e) {
+      Alert.alert('Erro ao publicar a pergunta', `${e.response.data.error}`);
     }
   }
 

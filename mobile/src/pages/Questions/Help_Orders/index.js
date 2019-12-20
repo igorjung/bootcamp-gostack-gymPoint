@@ -168,7 +168,7 @@ export default function HelpOrders({ navigation }) {
                       </AnswerContent>
                       <Time>{item.date}</Time>
                     </ItemHeader>
-                    <Info>{item.question}</Info>
+                    <Info numberOfLines={1}>{item.question}</Info>
                   </Item>
                 )}
               />

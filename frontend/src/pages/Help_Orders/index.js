@@ -29,6 +29,7 @@ export default function Help_Orders() {
   const [question, setQuestion] = useState([]);
   const [page, setPage] = useState(1);
   const [next, setNext] = useState(1);
+  const [answer, setAnswer] = useState('');
 
   async function loadHelpOrders() {
     const response = await api.get(`help-orders?page=${page}`);
@@ -75,6 +76,8 @@ export default function Help_Orders() {
       setVisible(0);
 
       toast.success('A resposta foi enviada.');
+
+      setAnswer('');
     } catch (e) {
       setLoading(false);
 
@@ -93,6 +96,10 @@ export default function Help_Orders() {
 
   function handleNext() {
     setPage(page + 1);
+  }
+
+  function handleChange(e) {
+    setAnswer(e.target.value);
   }
 
   return (
@@ -128,6 +135,8 @@ export default function Help_Orders() {
           multiline
           maxLength={255}
           name="answer"
+          value={answer}
+          onChange={handleChange}
           placeholder="examplo@email.com"
         />
         <button type="submit">

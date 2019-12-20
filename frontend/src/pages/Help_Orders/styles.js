@@ -38,6 +38,7 @@ export const AnswerContainer = styled(Form)`
     margin-top: 10px;
     font-size: 14px;
     text-align: left;
+    word-break: break-all;
     color: #999;
   }
 
